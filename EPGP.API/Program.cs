@@ -1,8 +1,5 @@
-using Auth0.AspNetCore.Authentication;
-using EPGP.API.Filters;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
+using EPGP.API.Services;
+using EPGP.Data.Repositories;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,27 +8,6 @@ var config = new ConfigurationBuilder()
                  .SetBasePath(Directory.GetCurrentDirectory())
                  .AddJsonFile("appsettings.json")
                  .Build();
-
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.Authority = config["Authentication:Domain"];
-    options.Audience = config["Authentication:Audience"];
-});
-
-
-builder.Services.AddControllers(options =>
-{
-    var policy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-
-    options.Filters.Add(new AuthorizeFilter(policy));
-});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -45,27 +21,14 @@ builder.Services.AddSwaggerGen(c =>
                 Description = "A REST API",
                 TermsOfService = new Uri("https://lmgtfy.com/?q=i+like+pie")
             });
-
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.OAuth2,
-        Flows = new OpenApiOAuthFlows
-        {
-            Implicit = new OpenApiOAuthFlow
-            {
-                Scopes = new Dictionary<string, string>
-                {
-                    { "all", "All" }
-                },
-                AuthorizationUrl = new Uri(config["Authentication:Domain"] + "authorize?audience=" + config["Authentication:Audience"])
-            }
-        }
-    });
-
-    c.OperationFilter<SecurityRequirementsOperationFilter>();
 });
+builder.Services
+    .AddTransient<IPointsService, PointsService>()
+    .AddTransient<IPointsRepository, PointsRepository>()
+    .AddTransient<IRaiderService, RaiderService>()
+    .AddTransient<IRaiderRepository, RaiderRepository>();
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -80,10 +43,10 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllers();
 
