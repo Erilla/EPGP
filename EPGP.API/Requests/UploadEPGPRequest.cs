@@ -13,4 +13,15 @@
         public int Extras_p { get; set; }
         public string Realm { get; set; }
     }
+
+    public class UploadEPGPRoster
+    {
+        public string CharacterName { get; set; }
+
+        public string Realm { get; set; }
+
+        public int EffortPoints { get; set; }
+
+        public int GearPoints { get; set; }
+    }
 }

@@ -1,5 +1,7 @@
 ﻿using EPGP.API.Requests;
+using EPGP.API.Responses;
 using EPGP.Data.Enums;
+using Hangfire;
 
 namespace EPGP.API.Services
 {
@@ -7,18 +9,43 @@ namespace EPGP.API.Services
     {
         private readonly IRaiderService _raiderService;
         private readonly IPointsService _pointsService;
+        private readonly IBackgroundJobClient _backgroundJobs;
 
-        public UploadsService(IRaiderService raiderService, IPointsService pointsService) => (_raiderService, _pointsService) = (raiderService, pointsService);
+        public UploadsService(IRaiderService raiderService, IPointsService pointsService, IBackgroundJobClient backgroundJobs) =>
+            (_raiderService, _pointsService, _backgroundJobs) = (raiderService, pointsService, backgroundJobs);
 
-        public void ProcessEPGP(UploadEPGPRequest request)
+        public UploadEPGPResponse ProcessEPGP(UploadEPGPRequest request)
         {
             var region = string.IsNullOrEmpty(request.Region) ? Region.Unknown : (Region)Enum.Parse(typeof(Region), request.Region);
 
-            ProcessRoster(region, request.Roster);
+            var rosterJobId = _backgroundJobs.Enqueue(() => ProcessRoster(region, ConvertRosterObjectToClass(request.Roster)));
+
+            return new UploadEPGPResponse
+            {
+                RosterJobId = rosterJobId
+            };
         }
 
-        private void ProcessRoster(Region region, object[][] roster)
+        public void ProcessRoster(Region region, IEnumerable<UploadEPGPRoster> roster)
         {
+            foreach (var raider in roster)
+            {
+                var raiderId = _raiderService.CreateRaider(new Models.Raider
+                {
+                    CharacterName = raider.CharacterName,
+                    Realm = raider.Realm,
+                    Region = region,
+                });
+
+                _pointsService.UpdateEffortPoints(raiderId, raider.EffortPoints);
+                _pointsService.UpdateGearPoints(raiderId, raider.GearPoints);
+            }
+        }
+
+        private IEnumerable<UploadEPGPRoster> ConvertRosterObjectToClass(object[][] roster)
+        {
+            var classObject = new List<UploadEPGPRoster>();
+
             foreach (var raider in roster)
             {
                 var character = raider[0].ToString();
@@ -32,16 +59,16 @@ namespace EPGP.API.Services
                 var effortPoints = string.IsNullOrEmpty(effortPointsStringObject) ? 0 : int.Parse(effortPointsStringObject);
                 var gearPoints = string.IsNullOrEmpty(gearPointsStringObject) ? 0 : int.Parse(gearPointsStringObject);
 
-                var raiderId = _raiderService.CreateRaider(new Models.Raider
+                classObject.Add(new UploadEPGPRoster
                 {
                     CharacterName = characterName,
                     Realm = characterRealm,
-                    Region = region,
+                    EffortPoints = effortPoints,
+                    GearPoints = gearPoints
                 });
-
-                _pointsService.UpdateEffortPoints(raiderId, effortPoints);
-                _pointsService.UpdateGearPoints(raiderId, gearPoints);
             }
+
+            return classObject;
         }
     }
 }

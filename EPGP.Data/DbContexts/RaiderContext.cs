@@ -30,6 +30,6 @@ namespace EPGP.Data.DbContexts
 
         public virtual GearPoints GearPoints { get; set; }
 
-        public virtual IEnumerable<LootHistory> LootHistory { get; set; }
+        public virtual IEnumerable<LootHistoryMatch> LootHistory { get; set; }
     }
 }

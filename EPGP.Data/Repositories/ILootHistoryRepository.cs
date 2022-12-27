@@ -4,10 +4,18 @@ namespace EPGP.Data.Repositories
 {
     public interface ILootHistoryRepository
     {
-        IEnumerable<LootHistory> GetLootHistoryForRaider(int raiderId);
+        IEnumerable<LootHistoryMatch> GetLootHistoryForRaider(int raiderId);
 
-        void AddLootHistory(LootHistory lootHistory);
+        void AddLootHistoryMatch(LootHistoryMatch lootHistoryMatch);
 
-        void UpdateLootHistory(LootHistory lootHistory);
+        void UpdateLootHistoryMatch(LootHistoryMatch lootHistoryMatch);
+
+        void AddLootHistoryGearPoints(LootHistoryGearPoints lootHistoryGearPoints);
+
+        void UpdateLootHistoryGearPoints(LootHistoryGearPoints lootHistoryGearPoints);
+
+        void AddLootHistoryDetailed(LootHistoryDetailed lootHistoryDetailed);
+
+        void UpdateLootHistoryDetailed(LootHistoryDetailed lootHistoryDetailed);
     }
 }

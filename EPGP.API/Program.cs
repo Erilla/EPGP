@@ -1,10 +1,12 @@
 using EPGP.API.Services;
 using EPGP.Data.Repositories;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var config = new ConfigurationBuilder()
+var configuration = new ConfigurationBuilder()
                  .SetBasePath(Directory.GetCurrentDirectory())
                  .AddJsonFile("appsettings.json")
                  .Build();
@@ -32,6 +34,11 @@ builder.Services
 
 builder.Services.AddControllers();
 
+builder.Services.AddHangfire(config =>
+                config.UsePostgreSqlStorage(configuration.GetConnectionString("HangfireConnection")));
+
+builder.Services.AddHangfireServer();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -41,7 +48,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
-        c.OAuthClientId(config["Authentication:ClientId"]);
+        c.OAuthClientId(configuration["Authentication:ClientId"]);
     });
 }
 
@@ -51,5 +58,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.MapControllers();
+
+app.UseHangfireDashboard();
 
 app.Run();

@@ -1,4 +1,5 @@
 ﻿using EPGP.API.Requests;
+using EPGP.API.Responses;
 using EPGP.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +14,9 @@ namespace EPGP.API.Controllers
         public UploadsController(IUploadsService uploadService) => (_uploadService) = (uploadService);
 
         [HttpPost("epgp")]
-        public void UploadEPGP([FromBody] UploadEPGPRequest request)
+        public UploadEPGPResponse UploadEPGP([FromBody] UploadEPGPRequest request)
         {
-            _uploadService.ProcessEPGP(request);
+            return _uploadService.ProcessEPGP(request);
         }
     }
 }
