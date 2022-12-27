@@ -3,9 +3,9 @@
 namespace EPGP.API.Services;
 public interface IPointsService
 {
-    Points GetPoints(int raiderId);
+    Raider GetPoints(int raiderId);
 
-    IEnumerable<Points> GetAllPoints();
+    IEnumerable<Raider> GetAllPoints();
 
     void UpdateEffortPoints(int raiderId, int points);
 

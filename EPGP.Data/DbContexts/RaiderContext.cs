@@ -8,9 +8,8 @@ namespace EPGP.Data.DbContexts
     {
         public DbSet<Raider> Raiders { get; set; }
 
-        public RaiderContext()
+        public RaiderContext() : base()
         {
-            Database.EnsureCreated();
         }
     }
 
@@ -30,5 +29,7 @@ namespace EPGP.Data.DbContexts
         public virtual EffortPoints EffortPoints { get; set; }
 
         public virtual GearPoints GearPoints { get; set; }
+
+        public virtual IEnumerable<LootHistory> LootHistory { get; set; }
     }
 }

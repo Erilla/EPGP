@@ -26,7 +26,9 @@ builder.Services
     .AddTransient<IPointsService, PointsService>()
     .AddTransient<IPointsRepository, PointsRepository>()
     .AddTransient<IRaiderService, RaiderService>()
-    .AddTransient<IRaiderRepository, RaiderRepository>();
+    .AddTransient<IRaiderRepository, RaiderRepository>()
+    .AddTransient<IUploadsService, UploadsService>()
+    .AddTransient<ILootHistoryRepository, LootHistoryRepository>();
 
 builder.Services.AddControllers();
 

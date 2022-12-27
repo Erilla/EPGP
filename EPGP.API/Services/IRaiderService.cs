@@ -6,7 +6,7 @@ namespace EPGP.API.Services
     {
         Raider GetRaider(int raiderId);
 
-        void CreateRaider(Raider rader);
+        int CreateRaider(Raider rader);
 
         void CreateRaiders(IEnumerable<Raider> raiders);
 

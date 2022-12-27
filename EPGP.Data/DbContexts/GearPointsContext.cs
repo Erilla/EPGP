@@ -7,9 +7,8 @@ public class GearPointsContext : SharedDbContext
 {
     public DbSet<GearPoints> GearPoints { get; set; }
 
-    public GearPointsContext()
+    public GearPointsContext() : base()
     {
-        Database.EnsureCreated();
     }
 }
 

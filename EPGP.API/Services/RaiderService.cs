@@ -8,13 +8,16 @@ namespace EPGP.API.Services
 
         public RaiderService(IRaiderRepository raiderRepository) => (_raiderRepository) = (raiderRepository);
 
-        public void CreateRaider(Models.Raider raider)
+        public int CreateRaider(Models.Raider raider)
         {
             var existingRaider = _raiderRepository.GetRaider(raider.CharacterName, raider.Realm, raider.Region, raider.Class);
 
-            if (existingRaider.Any()) throw new NotFoundException("Character already exists");
+            if (existingRaider.Any())
+            {
+                return existingRaider.First().RaiderId;
+            }
 
-            _raiderRepository.CreateRaider(new Data.DbContexts.Raider
+            return _raiderRepository.CreateRaider(new Data.DbContexts.Raider
             {
                 CharacterName = raider.CharacterName,
                 Region = raider.Region,

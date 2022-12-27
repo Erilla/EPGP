@@ -16,10 +16,10 @@ namespace EPGP.API.Controllers
 
         // GET api/<PointsController>/5
         [HttpGet("raider/{raiderId}")]
-        public Points Get(int raiderId) => _pointsService.GetPoints(raiderId);
+        public Raider Get(int raiderId) => _pointsService.GetPoints(raiderId);
 
-        [HttpGet("raider/All")]
-        public IEnumerable<Points> GetAll() => _pointsService.GetAllPoints();
+        [HttpGet("raider/all")]
+        public IEnumerable<Raider> GetAll() => _pointsService.GetAllPoints();
 
         // POST api/<PointsController>
         [HttpPost("/raider/{raiderId}")]

@@ -7,9 +7,8 @@ namespace EPGP.Data.DbContexts
     {
         public DbSet<EffortPoints> EffortPoints { get; set; }
 
-        public EffortPointsContext()
+        public EffortPointsContext() : base()
         {
-            Database.EnsureCreated();
         }
     }
 

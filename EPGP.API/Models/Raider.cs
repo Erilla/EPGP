@@ -13,5 +13,7 @@ namespace EPGP.API.Models
         public string Realm { get; set; }
 
         public Class Class { get; set; }
+
+        public Points Points { get; set; }
     }
 }

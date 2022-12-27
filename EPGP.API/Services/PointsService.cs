@@ -10,32 +10,49 @@ namespace EPGP.API.Services
 
         public PointsService(IPointsRepository pointsRepository, IRaiderRepository raiderRepository) => (_pointsRepository, _raiderRepository) = (pointsRepository, raiderRepository);
 
-        public Points GetPoints(int raiderId)
+        public Raider GetPoints(int raiderId)
         {
+            var raider = _raiderRepository.GetRaider(raiderId);
             var effortPoints = _pointsRepository.GetEffortPoints(raiderId);
             var gearPoints = _pointsRepository.GetGearPoints(raiderId);
 
-            return new Points
+            return new Raider
             {
                 RaiderId = raiderId,
-                EffortPoints = effortPoints == null ? 0 : effortPoints.Points,
-                GearPoints = gearPoints == null ? 0 : gearPoints.Points
+                CharacterName = raider.CharacterName,
+                Region = raider.Region,
+                Realm = raider.Realm,
+                Class = raider.Class,
+                Points = new Points
+                {
+                    EffortPoints = effortPoints == null ? 0 : effortPoints.Points,
+                    GearPoints = gearPoints == null ? 0 : gearPoints.Points
+                }
             };
         }
 
-        public IEnumerable<Points> GetAllPoints()
+        public IEnumerable<Raider> GetAllPoints()
         {
             var raiders = _raiderRepository.GetAllRaiders();
 
-            return raiders.Select(r =>
-            {
-                return new Points
-                {
-                    RaiderId = r.RaiderId,
-                    EffortPoints = r.EffortPoints?.Points ?? 0,
-                    GearPoints = r.GearPoints?.Points ?? 0
-                };
-            });
+            return raiders
+                .Select(r =>
+                    {
+                        return new Raider
+                        {
+                            RaiderId = r.RaiderId,
+                            CharacterName = r.CharacterName,
+                            Region = r.Region,
+                            Realm = r.Realm,
+                            Class = r.Class,
+                            Points = new Points
+                            {
+                                EffortPoints = r.EffortPoints?.Points ?? 0,
+                                GearPoints = r.GearPoints?.Points ?? 0
+                            }
+                        };
+                    })
+                .OrderByDescending(r => r.Points.Priority);
         }
 
         public void UpdateEffortPoints(int raiderId, int points) => _pointsRepository.UpdateEffortPoints(raiderId, points);

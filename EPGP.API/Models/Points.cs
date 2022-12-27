@@ -2,8 +2,6 @@
 {
     public class Points
     {
-        public int RaiderId { get; set; }
-
         public decimal EffortPoints { get; set; }
 
         public decimal GearPoints { get; set; }
