@@ -6,15 +6,17 @@ namespace EPGP.Data.Repositories
     {
         IEnumerable<LootHistoryMatch> GetLootHistoryForRaider(int raiderId);
 
-        void AddLootHistoryMatch(LootHistoryMatch lootHistoryMatch);
+        IEnumerable<LootHistoryMatch> GetLootHistoryMatchByDate(DateOnly date);
+
+        int AddLootHistoryMatch(LootHistoryMatch lootHistoryMatch);
 
         void UpdateLootHistoryMatch(LootHistoryMatch lootHistoryMatch);
 
-        void AddLootHistoryGearPoints(LootHistoryGearPoints lootHistoryGearPoints);
+        int AddLootHistoryGearPoints(LootHistoryGearPoints lootHistoryGearPoints);
 
         void UpdateLootHistoryGearPoints(LootHistoryGearPoints lootHistoryGearPoints);
 
-        void AddLootHistoryDetailed(LootHistoryDetailed lootHistoryDetailed);
+        int AddLootHistoryDetailed(LootHistoryDetailed lootHistoryDetailed);
 
         void UpdateLootHistoryDetailed(LootHistoryDetailed lootHistoryDetailed);
     }

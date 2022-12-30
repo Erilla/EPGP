@@ -7,14 +7,14 @@ namespace EPGP.Data.Repositories;
 public class RaiderRepository : IRaiderRepository
 {
     private readonly IPointsRepository _pointsRepository;
+    private readonly EPGPContext _epgpContext;
 
-    public RaiderRepository(IPointsRepository pointsRepository) => (_pointsRepository) = (pointsRepository);
+    public RaiderRepository(IPointsRepository pointsRepository, EPGPContext epgpContext) => (_pointsRepository, _epgpContext) = (pointsRepository, epgpContext);
 
     public int CreateRaider(Raider raider)
     {
-        using var context = new RaiderContext();
-        context.Raiders.Add(raider);
-        context.SaveChanges();
+        _epgpContext.Raiders.Add(raider);
+        _epgpContext.SaveChanges();
 
         _pointsRepository.CreatePoints(raider.RaiderId);
 
@@ -23,15 +23,13 @@ public class RaiderRepository : IRaiderRepository
 
     public void UpdateRaider(Raider raider)
     {
-        using var context = new RaiderContext();
-        context.Raiders.Update(raider);
-        context.SaveChanges();
+        _epgpContext.Raiders.Update(raider);
+        _epgpContext.SaveChanges();
     }
 
     public IEnumerable<Raider> GetAllRaiders()
     {
-        using var context = new RaiderContext();
-        return context.Raiders
+        return _epgpContext.Raiders
             .Include(r => r.EffortPoints)
             .Include(r => r.GearPoints)
             .ToList();
@@ -39,18 +37,16 @@ public class RaiderRepository : IRaiderRepository
 
     public Raider GetRaider(int raiderId)
     {
-        using var context = new RaiderContext();
-        return context.Raiders
+        return _epgpContext.Raiders
             .Single(r => r.RaiderId == raiderId);
     }
 
-    public IEnumerable<Raider> GetRaider(string characterName, string realm = "", Region region = Region.Unknown, Class characterClass = Class.Unknown)
+    public IEnumerable<Raider> GetRaider(string characterName, string realm, Region region = Region.Unknown, Class characterClass = Class.Unknown)
     {
-        using var context = new RaiderContext();
-        return context.Raiders
+        return _epgpContext.Raiders
             .Where(r =>
                  r.CharacterName == characterName &&
-                 (realm == "" || r.Realm == realm) &&
+                 r.Realm == realm &&
                  (region == Region.Unknown || r.Region == region) &&
                  (characterClass == Class.Unknown || r.Class == characterClass))
             .ToList();

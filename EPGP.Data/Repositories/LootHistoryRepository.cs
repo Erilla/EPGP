@@ -5,56 +5,66 @@ namespace EPGP.Data.Repositories
 {
     public class LootHistoryRepository : ILootHistoryRepository
     {
+        private readonly EPGPContext _epgpContext;
+
+        public LootHistoryRepository(EPGPContext epgpContext) => (_epgpContext) = epgpContext;
+
         public IEnumerable<LootHistoryMatch> GetLootHistoryForRaider(int raiderId)
         {
-            using var context = new LootHistoryMatchContext();
-            return context.LootHistoryMatch
+            return _epgpContext.LootHistoryMatch
                 .Where(lh => lh.RaiderId == raiderId)
                 .Include(lh => lh.LootHistoryGearPoints)
                 .Include(lh => lh.LootHistoryDetailed)
                 .ToList();
         }
 
-        public void AddLootHistoryMatch(LootHistoryMatch lootHistoryMatch)
+        public int AddLootHistoryMatch(LootHistoryMatch lootHistoryMatch)
         {
-            using var context = new LootHistoryMatchContext();
-            context.LootHistoryMatch.Add(lootHistoryMatch);
-            context.SaveChanges();
+            _epgpContext.LootHistoryMatch.Add(lootHistoryMatch);
+            _epgpContext.SaveChanges();
+            return lootHistoryMatch.LootHistoryMatchId;
         }
 
         public void UpdateLootHistoryMatch(LootHistoryMatch lootHistoryMatch)
         {
-            using var context = new LootHistoryMatchContext();
-            context.LootHistoryMatch.Update(lootHistoryMatch);
-            context.SaveChanges();
+            _epgpContext.LootHistoryMatch.Update(lootHistoryMatch);
+            _epgpContext.SaveChanges();
         }
 
-        public void AddLootHistoryGearPoints(LootHistoryGearPoints lootHistoryGearPoints)
+        public int AddLootHistoryGearPoints(LootHistoryGearPoints lootHistoryGearPoints)
         {
-            using var context = new LootHistoryGearPointsContext();
-            context.LootHistoryGearPoints.Add(lootHistoryGearPoints);
-            context.SaveChanges();
+            _epgpContext.LootHistoryGearPoints.Add(lootHistoryGearPoints);
+            _epgpContext.SaveChanges();
+            return lootHistoryGearPoints.LootHistoryGearPointsId;
         }
 
         public void UpdateLootHistoryGearPoints(LootHistoryGearPoints lootHistoryGearPoints)
         {
-            using var context = new LootHistoryGearPointsContext();
-            context.LootHistoryGearPoints.Update(lootHistoryGearPoints);
-            context.SaveChanges();
+            _epgpContext.LootHistoryGearPoints.Update(lootHistoryGearPoints);
+            _epgpContext.SaveChanges();
         }
 
-        public void AddLootHistoryDetailed(LootHistoryDetailed lootHistoryDetailed)
+        public int AddLootHistoryDetailed(LootHistoryDetailed lootHistoryDetailed)
         {
-            using var context = new LootHistoryDetailedContext();
-            context.LootHistoryDetailed.Add(lootHistoryDetailed);
-            context.SaveChanges();
+            _epgpContext.LootHistoryDetailed.Add(lootHistoryDetailed);
+            _epgpContext.SaveChanges();
+            return lootHistoryDetailed.LootHistoryDetailedId;
         }
 
         public void UpdateLootHistoryDetailed(LootHistoryDetailed lootHistoryDetailed)
         {
-            using var context = new LootHistoryDetailedContext();
-            context.LootHistoryDetailed.Update(lootHistoryDetailed);
-            context.SaveChanges();
+            _epgpContext.LootHistoryDetailed.Update(lootHistoryDetailed);
+            _epgpContext.SaveChanges();
+        }
+
+        public IEnumerable<LootHistoryMatch> GetLootHistoryMatchByDate(DateOnly date)
+        {
+            return _epgpContext.LootHistoryMatch
+                .Where(lhm => DateOnly.FromDateTime(lhm.Date) == date)
+                .Include(lhm => lhm.Raider)
+                .Include(lhm => lhm.LootHistoryGearPoints)
+                .Include(lhm => lhm.LootHistoryDetailed)
+                .ToList();
         }
     }
 }

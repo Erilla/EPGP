@@ -4,73 +4,69 @@ namespace EPGP.Data.Repositories
 {
     public class PointsRepository : IPointsRepository
     {
+        private readonly EPGPContext _epgpContext;
+
+        public PointsRepository(EPGPContext epgpContext) => (_epgpContext) = epgpContext;
+
         public (int, int) CreatePoints(int raiderId)
         {
-            using var effortPointsContext = new EffortPointsContext();
             var effortPoints = new EffortPoints
             {
                 RaiderId = raiderId,
                 Points = 0
             };
-            effortPointsContext.EffortPoints.Add(effortPoints);
-            effortPointsContext.SaveChanges();
+            _epgpContext.EffortPoints.Add(effortPoints);
+            _epgpContext.SaveChanges();
 
-            using var gearPointsContext = new GearPointsContext();
             var gearPoints = new GearPoints
             {
                 RaiderId = raiderId,
                 Points = 0
             };
-            gearPointsContext.GearPoints.Add(gearPoints);
-            gearPointsContext.SaveChanges();
+            _epgpContext.GearPoints.Add(gearPoints);
+            _epgpContext.SaveChanges();
 
             return (effortPoints.EffortPointsId, gearPoints.GearPointsId);
         }
 
         public EffortPoints? GetEffortPoints(int raiderId)
         {
-            using var context = new EffortPointsContext();
-            return context.EffortPoints.SingleOrDefault(s => s.RaiderId == raiderId);
+            return _epgpContext.EffortPoints.SingleOrDefault(s => s.RaiderId == raiderId);
         }
 
         public IEnumerable<EffortPoints> GetAllEffortPoints()
         {
-            using var context = new EffortPointsContext();
-            return context.EffortPoints;
+            return _epgpContext.EffortPoints;
         }
 
         public GearPoints? GetGearPoints(int raiderId)
         {
-            using var context = new GearPointsContext();
-            return context.GearPoints.SingleOrDefault(s => s.RaiderId == raiderId);
+            return _epgpContext.GearPoints.SingleOrDefault(s => s.RaiderId == raiderId);
         }
 
         public IEnumerable<GearPoints> GetAllGearPoints()
         {
-            using var context = new GearPointsContext();
-            return context.GearPoints;
+            return _epgpContext.GearPoints;
         }
 
-        public void UpdateEffortPoints(int raiderId, int points)
+        public void UpdateEffortPoints(int raiderId, decimal points)
         {
-            using var context = new EffortPointsContext();
-
             var effortPoints = GetEffortPoints(raiderId);
             if (effortPoints == null) throw new ArgumentException($"Unable to find effort points for Raider Id {raiderId}");
 
             effortPoints.Points = points;
-            context.EffortPoints.Update(effortPoints);
-            context.SaveChanges();
+            _epgpContext.EffortPoints.Update(effortPoints);
+            _epgpContext.SaveChanges();
         }
 
-        public void UpdateGearPoints(int raiderId, int points)
+        public void UpdateGearPoints(int raiderId, decimal points)
         {
-            using var context = new GearPointsContext();
-
             var gearPoints = GetGearPoints(raiderId);
+            if (gearPoints == null) throw new ArgumentException($"Unable to find effort points for Raider Id {raiderId}");
+
             gearPoints.Points = points;
-            context.GearPoints.Update(gearPoints);
-            context.SaveChanges();
+            _epgpContext.GearPoints.Update(gearPoints);
+            _epgpContext.SaveChanges();
         }
     }
 }

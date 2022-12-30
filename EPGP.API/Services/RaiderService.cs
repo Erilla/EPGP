@@ -26,6 +26,7 @@ namespace EPGP.API.Services
             });
         }
 
+
         public void CreateRaiders(IEnumerable<Models.Raider> raiders)
         {
             _raiderRepository.CreateRaiders(
@@ -47,6 +48,19 @@ namespace EPGP.API.Services
         public Models.Raider GetRaider(int raiderId)
         {
             var raider = _raiderRepository.GetRaider(raiderId);
+            return new Models.Raider
+            {
+                RaiderId = raider.RaiderId,
+                CharacterName = raider.CharacterName,
+                Class = raider.Class,
+                Realm = raider.Realm,
+                Region = raider.Region,
+            };
+        }
+
+        public Models.Raider GetRaider(string characterName, string realm)
+        {
+            var raider = _raiderRepository.GetRaider(characterName, realm).First();
             return new Models.Raider
             {
                 RaiderId = raider.RaiderId,

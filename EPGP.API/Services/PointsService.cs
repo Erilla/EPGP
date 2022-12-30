@@ -55,8 +55,8 @@ namespace EPGP.API.Services
                 .OrderByDescending(r => r.Points.Priority);
         }
 
-        public void UpdateEffortPoints(int raiderId, int points) => _pointsRepository.UpdateEffortPoints(raiderId, points);
+        public void UpdateEffortPoints(int raiderId, decimal points) => _pointsRepository.UpdateEffortPoints(raiderId, points);
 
-        public void UpdateGearPoints(int raiderId, int points) => _pointsRepository.UpdateGearPoints(raiderId, points);
+        public void UpdateGearPoints(int raiderId, decimal points) => _pointsRepository.UpdateGearPoints(raiderId, points);
     }
 }

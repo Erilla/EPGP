@@ -20,8 +20,21 @@
 
         public string Realm { get; set; }
 
-        public int EffortPoints { get; set; }
+        public decimal EffortPoints { get; set; }
 
-        public int GearPoints { get; set; }
+        public decimal GearPoints { get; set; }
+    }
+
+    public class UploadEPGPLoot
+    {
+        public DateTime Timestamp { get; set; }
+
+        public string CharacterName { get; set; }
+
+        public string Realm { get; set; }
+
+        public string ItemString { get; set; }
+
+        public decimal GearPoints { get; set; }
     }
 }

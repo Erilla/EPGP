@@ -1,7 +1,9 @@
 using EPGP.API.Services;
+using EPGP.Data.DbContexts;
 using EPGP.Data.Repositories;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +27,7 @@ builder.Services.AddSwaggerGen(c =>
             });
 });
 builder.Services
+    .AddTransient<IAdminService, AdminService>()
     .AddTransient<IPointsService, PointsService>()
     .AddTransient<IPointsRepository, PointsRepository>()
     .AddTransient<IRaiderService, RaiderService>()
@@ -33,6 +36,10 @@ builder.Services
     .AddTransient<ILootHistoryRepository, LootHistoryRepository>();
 
 builder.Services.AddControllers();
+
+builder.Services
+    .AddEntityFrameworkNpgsql()
+    .AddDbContext<EPGPContext>(options => options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddHangfire(config =>
                 config.UsePostgreSqlStorage(configuration.GetConnectionString("HangfireConnection")));

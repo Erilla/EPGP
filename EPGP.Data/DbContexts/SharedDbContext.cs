@@ -7,7 +7,6 @@ namespace EPGP.Data.DbContexts
     {
         public SharedDbContext()
         {
-            Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

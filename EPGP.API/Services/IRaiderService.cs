@@ -6,6 +6,8 @@ namespace EPGP.API.Services
     {
         Raider GetRaider(int raiderId);
 
+        Raider GetRaider(string characterName, string realm);
+
         int CreateRaider(Raider rader);
 
         void CreateRaiders(IEnumerable<Raider> raiders);

@@ -7,7 +7,7 @@ public interface IPointsService
 
     IEnumerable<Raider> GetAllPoints();
 
-    void UpdateEffortPoints(int raiderId, int points);
+    void UpdateEffortPoints(int raiderId, decimal points);
 
-    void UpdateGearPoints(int raiderId, int points);
+    void UpdateGearPoints(int raiderId, decimal points);
 }

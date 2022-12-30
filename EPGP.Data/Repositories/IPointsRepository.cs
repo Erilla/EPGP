@@ -6,9 +6,9 @@ namespace EPGP.Data.Repositories
     {
         (int, int) CreatePoints(int raiderId);
 
-        void UpdateEffortPoints(int raiderId, int points);
+        void UpdateEffortPoints(int raiderId, decimal points);
 
-        void UpdateGearPoints(int raiderId, int points);
+        void UpdateGearPoints(int raiderId, decimal points);
 
         EffortPoints? GetEffortPoints(int raiderId);
 

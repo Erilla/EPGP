@@ -3,16 +3,6 @@ using EPGP.Data.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-var pointsRepo = new PointsRepository();
-var raiderRepo = new RaiderRepository(pointsRepo);
-
-raiderRepo.CreateRaider(new EPGP.Data.DbContexts.Raider
-{
-    CharacterName = "Raid",
-    Realm = "Realm"
-});
-
-
 using IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((_, services) =>
         services.AddTransient<IRaiderRepository, RaiderRepository>()
