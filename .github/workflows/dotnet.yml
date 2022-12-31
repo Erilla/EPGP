@@ -25,18 +25,20 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release
     - name: Publish
-      run: dotnet publish -c Release
+      run: dotnet publish -c Release        
     - name: stop service
-      uses: Sithi5/remote-ssh-commands-action@1.1.2
+      uses: fifsky/ssh-action@v0.0.6
       with:
-        # ssh user
-        SSH_USER: ${{ secrets.DROPLET_USER }}
-        # ssh private key
-        SSH_PRIVATE_KEY: ${{ secrets.DROPLET_SSH_PRIVATE_KEY }}
-        # ssh host
-        SSH_HOST: ${{ secrets.DROPLET_HOST }}
-        # command to execute in the remote server.
-        SSH_REMOTE_COMMANDS: systemctl stop epgp-api.service
+        # Command to execute on the remote server.
+        command: systemctl stop epgp-api.service
+        # Hostname or IP address of the server.
+        host: ${{ secrets.DROPLET_HOST }}
+        # Username for authentication.
+        user: ${{ secrets.DROPLET_USER }}
+        # Port number of the server.
+        port: 22
+        # String that contains a private key for either key-based or hostbased user authentication (OpenSSH format)
+        key: ${{ secrets.DROPLET_SSH_PRIVATE_KEY }}        
     - name: Place published files onto droplet
       uses: appleboy/scp-action@master
       with:
@@ -46,13 +48,15 @@ jobs:
         source: "bin/Release/net7.0/publish"
         target: "${{ secrets.DROPLET_TARGET_DIR }}"
     - name: start service
-      uses: Sithi5/remote-ssh-commands-action@1.1.2
+      uses: fifsky/ssh-action@v0.0.6
       with:
-        # ssh user
-        SSH_USER: ${{ secrets.DROPLET_USER }}
-        # ssh private key
-        SSH_PRIVATE_KEY: ${{ secrets.DROPLET_SSH_PRIVATE_KEY }}
-        # ssh host
-        SSH_HOST: ${{ secrets.DROPLET_HOST }}
-        # command to execute in the remote server.
-        SSH_REMOTE_COMMANDS: systemctl start epgp-api.service
+        # Command to execute on the remote server.
+        command: systemctl start epgp-api.service
+        # Hostname or IP address of the server.
+        host: ${{ secrets.DROPLET_HOST }}
+        # Username for authentication.
+        user: ${{ secrets.DROPLET_USER }}
+        # Port number of the server.
+        port: 22
+        # String that contains a private key for either key-based or hostbased user authentication (OpenSSH format)
+        key: ${{ secrets.DROPLET_SSH_PRIVATE_KEY }}  
