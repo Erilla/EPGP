@@ -4,6 +4,10 @@ name: Restart Service
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Build and deploy"]
+    types:
+      - completed
 jobs:
 
   build:
