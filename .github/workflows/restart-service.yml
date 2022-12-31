@@ -1,0 +1,20 @@
+name: Restart Service
+
+# Controls when the workflow will run
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Build and deploy"]
+    types:
+      - completed
+jobs:
+
+  build:
+
+    runs-on: self-hosted
+    steps:
+    - name: stop service
+      run: sudo systemctl stop epgp-api.service
+    - name: start service
+      run: sudo systemctl start epgp-api.service

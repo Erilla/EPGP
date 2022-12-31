@@ -1,0 +1,41 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: Build and deploy
+
+on:
+  workflow_dispatch:
+
+jobs:     
+  build-deploy:
+
+    runs-on: ubuntu-latest
+    environment: Prod
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: App Settings Variable Substitution
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: "./EPGP.API/appsettings.json"
+      env:
+        ConnectionStrings.DefaultConnection: ${{ secrets.CONNECTIONSTRING_DEFAULT }}
+        ConnectionStrings.HangfireConnection: ${{ secrets.CONNECTIONSTRING_HANGFIRE }}
+    - name: Build
+      run: dotnet build --configuration Release
+    - name: Publish
+      run: dotnet publish -c Release              
+    - name: SFTP Deploy
+      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      with:
+        username: ${{ secrets.DROPLET_USER }}
+        server: ${{ secrets.DROPLET_HOST }}
+        port: 22
+        ssh_private_key: ${{ secrets.DROPLET_SSH_PRIVATE_KEY }}
+        local_path: ./EPGP.API/bin/Release/net7.0/publish/*
+        remote_path: ${{ secrets.DROPLET_TARGET_DIR }}
