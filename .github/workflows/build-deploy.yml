@@ -1,13 +1,19 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
-name: .NET
+name: Build and deploy
 
 on:
   workflow_dispatch:
 
 jobs:
-  build:
+  stop-service:
+    runs-on: self-hosted
+    steps:
+    - name: stop service
+      run: sudo systemctl stop epgp-api.service
+      
+  build-deploy:
 
     runs-on: ubuntu-latest
 
@@ -23,15 +29,6 @@ jobs:
       run: dotnet build --configuration Release
     - name: Publish
       run: dotnet publish -c Release              
-    - name: stop service
-      uses: garygrossgarten/github-action-ssh@release
-      with:
-        command: systemctl stop epgp-api.service
-        host: ${{ secrets.DROPLET_HOST }}
-        username: ${{ secrets.DROPLET_USER }}
-        privateKey: ${{ secrets.DROPLET_SSH_PRIVATE_KEY }}
-
-        
     - name: SFTP Deploy
       uses: wlixcc/SFTP-Deploy-Action@v1.2.4
       with:
@@ -42,10 +39,8 @@ jobs:
         local_path: bin/Release/net7.0/publish/*
         remote_path: ${{ secrets.DROPLET_TARGET_DIR }}
         
+  start-service:
+    runs-on: self-hosted
+    steps:
     - name: start service
-      uses: garygrossgarten/github-action-ssh@release
-      with:
-        command: systemctl start epgp-api.service
-        host: ${{ secrets.DROPLET_HOST }}
-        username: ${{ secrets.DROPLET_USER }}
-        privateKey: ${{ secrets.DROPLET_SSH_PRIVATE_KEY }}
+      run: sudo systemctl start epgp-api.service
