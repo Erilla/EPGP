@@ -18,6 +18,19 @@ namespace EPGP.Data.Repositories
                 .ToList();
         }
 
+        public (IEnumerable<LootHistoryMatch>, int) GetPagedLootHistoryForRaider(int raiderId, int pageSize)
+        {
+            var result = _epgpContext.LootHistoryMatch
+                .Where(lh => lh.RaiderId == raiderId)
+                .OrderBy(lh => lh.Date)
+
+                .Include(lh => lh.LootHistoryGearPoints)
+                .Include(lh => lh.LootHistoryDetailed)
+                .ToList();
+
+            return (result.Take(pageSize), result.Count);
+        }
+
         public int AddLootHistoryMatch(LootHistoryMatch lootHistoryMatch)
         {
             _epgpContext.LootHistoryMatch.Add(lootHistoryMatch);

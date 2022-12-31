@@ -41,6 +41,8 @@ builder.Services
     .AddTransient<IAdminService, AdminService>()
     .AddTransient<IPointsService, PointsService>()
     .AddTransient<IPointsRepository, PointsRepository>()
+    .AddTransient<ILootService, LootService>()
+    .AddTransient<ILootHistoryRepository, LootHistoryRepository>()
     .AddTransient<IRaiderService, RaiderService>()
     .AddTransient<IRaiderRepository, RaiderRepository>()
     .AddTransient<IUploadsService, UploadsService>()

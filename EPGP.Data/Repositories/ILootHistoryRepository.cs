@@ -6,6 +6,8 @@ namespace EPGP.Data.Repositories
     {
         IEnumerable<LootHistoryMatch> GetLootHistoryForRaider(int raiderId);
 
+        (IEnumerable<LootHistoryMatch>, int) GetPagedLootHistoryForRaider(int raiderId, int pageSize);
+
         IEnumerable<LootHistoryMatch> GetLootHistoryMatchByDate(DateOnly date);
 
         int AddLootHistoryMatch(LootHistoryMatch lootHistoryMatch);
