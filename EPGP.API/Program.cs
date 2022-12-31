@@ -49,18 +49,26 @@ builder.Services.AddHangfireServer();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+
+app.UseSwagger(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    c.PreSerializeFilters.Add((swaggerDoc, httpRequest) =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
-        c.OAuthClientId(configuration["Authentication:ClientId"]);
+        if (!httpRequest.Headers.ContainsKey("X-Forwarded-Host")) return;
+        var basePath = "proxy";
+        var serverUrl = $"{httpRequest.Scheme}://{httpRequest.Headers["X-Forwarded-Host"]}/{basePath}";
+        swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = serverUrl } };
     });
-}
+});
+app.UseSwaggerUI(c =>
+{
+    c.RoutePrefix = "";
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
+    c.OAuthClientId(configuration["Authentication:ClientId"]);
+});
 
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
