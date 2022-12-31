@@ -8,19 +8,9 @@ jobs:
 
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - name: stop service
-      uses: garygrossgarten/github-action-ssh@release
-      with:
-        command: systemctl stop epgp-api.service
-        host: ${{ secrets.DROPLET_HOST }}
-        username: ${{ secrets.DROPLET_USER }}
-        privateKey: ${{ secrets.DROPLET_SSH_PRIVATE_KEY }}
+      run: systemctl stop epgp-api.service
     - name: start service
-      uses: garygrossgarten/github-action-ssh@release
-      with:
-        command: systemctl start epgp-api.service
-        host: ${{ secrets.DROPLET_HOST }}
-        username: ${{ secrets.DROPLET_USER }}
-        privateKey: ${{ secrets.DROPLET_SSH_PRIVATE_KEY }}
+      run: systemctl start epgp-api.service
