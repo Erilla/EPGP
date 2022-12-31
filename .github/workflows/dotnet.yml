@@ -27,12 +27,12 @@ jobs:
     - name: Publish
       run: dotnet publish -c Release              
     - name: stop service
-      uses: appleboy/ssh-action@v0.1.6
+      uses: garygrossgarten/github-action-ssh@release
       with:
+        command: systemctl stop epgp-api.service
         host: ${{ secrets.DROPLET_HOST }}
         username: ${{ secrets.DROPLET_USER }}
-        key: ${{ secrets.DROPLET_SSH_PRIVATE_KEY }}
-        script: systemctl stop epgp-api.service
+        privateKey: ${{ secrets.DROPLET_SSH_PRIVATE_KEY }}
     - name: Place published files onto droplet
       uses: appleboy/scp-action@master
       with:
@@ -42,9 +42,9 @@ jobs:
         source: "bin/Release/net7.0/publish"
         target: "${{ secrets.DROPLET_TARGET_DIR }}"
     - name: start service
-      uses: appleboy/ssh-action@v0.1.6
+      uses: garygrossgarten/github-action-ssh@release
       with:
+        command: systemctl start epgp-api.service
         host: ${{ secrets.DROPLET_HOST }}
         username: ${{ secrets.DROPLET_USER }}
-        key: ${{ secrets.DROPLET_SSH_PRIVATE_KEY }}
-        script: systemctl start epgp-api.service
+        privateKey: ${{ secrets.DROPLET_SSH_PRIVATE_KEY }}
