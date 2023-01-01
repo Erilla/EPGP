@@ -45,8 +45,8 @@ public class RaiderRepository : IRaiderRepository
     {
         return _epgpContext.Raiders
             .Where(r =>
-                 r.CharacterName == characterName &&
-                 r.Realm == realm &&
+                 r.CharacterName.ToLower() == characterName.ToLower() &&
+                 r.Realm.ToLower() == realm.ToLower() &&
                  (region == Region.Unknown || r.Region == region) &&
                  (characterClass == Class.Unknown || r.Class == characterClass))
             .ToList();

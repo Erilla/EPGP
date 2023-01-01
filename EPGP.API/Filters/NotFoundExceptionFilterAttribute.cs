@@ -8,7 +8,7 @@ namespace EPGP.API.Filters
     {
         public override void OnException(ExceptionContext context)
         {
-            if (context.Exception is NotFoundException)
+            if (context.Exception is NotFoundException || context.Exception is ArgumentException)
             {
                 // Customize this object to fit your needs
                 var result = new ObjectResult(new

@@ -1,5 +1,7 @@
-﻿using EPGP.API.Models;
+﻿using EPGP.API.Filters;
+using EPGP.API.Models;
 using EPGP.API.Services;
+using EPGP.Data.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPGP.API.Controllers
@@ -14,5 +16,9 @@ namespace EPGP.API.Controllers
 
         [HttpGet("{raiderId}")]
         public LootHistory Get(int raiderId, int pageSize = 10) => _lootService.GetLootHistory(raiderId, pageSize);
+
+        [HttpGet("region/{region}/realm/{realm}/character/{characterName}")]
+        [NotFoundExceptionFilterAttribute]
+        public LootHistory GetByCharacterName(Region region, string realm, string characterName, int pageSize = 10) => _lootService.GetLootHistory(region, realm, characterName, pageSize);
     }
 }

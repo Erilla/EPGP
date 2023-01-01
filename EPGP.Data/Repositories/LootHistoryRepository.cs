@@ -1,4 +1,5 @@
 ﻿using EPGP.Data.DbContexts;
+using EPGP.Data.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace EPGP.Data.Repositories
@@ -6,8 +7,8 @@ namespace EPGP.Data.Repositories
     public class LootHistoryRepository : ILootHistoryRepository
     {
         private readonly EPGPContext _epgpContext;
-
-        public LootHistoryRepository(EPGPContext epgpContext) => (_epgpContext) = epgpContext;
+        private readonly IRaiderRepository _raiderRepository;
+        public LootHistoryRepository(EPGPContext epgpContext, IRaiderRepository raiderRepository) => (_epgpContext, _raiderRepository) = (epgpContext, raiderRepository);
 
         public IEnumerable<LootHistoryMatch> GetLootHistoryForRaider(int raiderId)
         {
@@ -140,6 +141,17 @@ namespace EPGP.Data.Repositories
                 _epgpContext.Modifiers.AddRange(newModifiers);
                 _epgpContext.SaveChanges();
             }
+        }
+
+        public (IEnumerable<LootHistoryMatch>, int, int) GetPagedLootHistoryForRaider(Region region, string realm, string characterName, int pageSize)
+        {
+            var raider = _raiderRepository.GetRaider(characterName, realm, region).FirstOrDefault();
+
+            if (raider == null) throw new ArgumentException("Unable to find raider");
+
+            var (result, totalCount) = GetPagedLootHistoryForRaider(raider.RaiderId, pageSize);
+
+            return (result, totalCount, raider.RaiderId);
         }
     }
 }

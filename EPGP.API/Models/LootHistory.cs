@@ -11,6 +11,8 @@ public class LootHistory
 
 public class Loot
 {
+    public int LootHistoryId { get; set; }
+
     public DateTime Timestamp { get; set; }
 
     public ItemString ItemString { get; set; }

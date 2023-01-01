@@ -1,4 +1,5 @@
 ﻿using EPGP.Data.DbContexts;
+using EPGP.Data.Enums;
 
 namespace EPGP.Data.Repositories
 {
@@ -7,6 +8,8 @@ namespace EPGP.Data.Repositories
         IEnumerable<LootHistoryMatch> GetLootHistoryForRaider(int raiderId);
 
         (IEnumerable<LootHistoryMatch>, int) GetPagedLootHistoryForRaider(int raiderId, int pageSize);
+
+        (IEnumerable<LootHistoryMatch>, int, int) GetPagedLootHistoryForRaider(Region region, string realm, string characterName, int pageSize);
 
         IEnumerable<LootHistoryMatch> GetLootHistoryMatchByDate(DateOnly date);
 

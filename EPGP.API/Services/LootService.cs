@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using EPGP.API.Models;
 using EPGP.Data.DbContexts;
+using EPGP.Data.Enums;
 using EPGP.Data.Repositories;
 
 namespace EPGP.API.Services
@@ -29,6 +30,25 @@ namespace EPGP.API.Services
                 TotalNumberOfLoots = totalLoots,
                 Loots = lootHistoryResult.Select(lhr => new Loot
                 {
+                    LootHistoryId = lhr.LootHistoryMatchId,
+                    Timestamp = lhr.Date,
+                    ItemString = _mapper.Map<Models.ItemString>(lhr.LootHistoryGearPoints.ItemString),
+                    GearPoints = lhr.LootHistoryGearPoints.GearPoints
+                })
+            };
+        }
+
+        public LootHistory GetLootHistory(Region region, string realm, string characterName, int pageSize)
+        {
+            var (lootHistoryResult, totalLoots, raiderId) = _lootHistoryRepository.GetPagedLootHistoryForRaider(region, realm, characterName, pageSize);
+
+            return new LootHistory
+            {
+                RaiderId = raiderId,
+                TotalNumberOfLoots = totalLoots,
+                Loots = lootHistoryResult.Select(lhr => new Loot
+                {
+                    LootHistoryId = lhr.LootHistoryMatchId,
                     Timestamp = lhr.Date,
                     ItemString = _mapper.Map<Models.ItemString>(lhr.LootHistoryGearPoints.ItemString),
                     GearPoints = lhr.LootHistoryGearPoints.GearPoints
