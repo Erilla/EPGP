@@ -52,6 +52,8 @@ builder.Services
     .AddTransient<IUploadsService, UploadsService>()
     .AddTransient<ILootHistoryRepository, LootHistoryRepository>();
 
+builder.Services.AddAutoMapper(typeof(Program));
+
 builder.Services.AddControllers().AddJsonOptions(x =>
 {
     // serialize enums as strings in api responses (e.g. Role)

@@ -22,6 +22,11 @@ namespace EPGP.API.Services
             _epgpContext.Database.EnsureCreated();
         }
 
+        public void DeleteDatabases()
+        {
+            _epgpContext.Database.EnsureDeleted();
+        }
+
         public async Task FillRaiderDetails()
         {
             var raiders = _raiderRepository.GetAllRaiders();

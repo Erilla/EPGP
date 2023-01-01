@@ -13,7 +13,7 @@ public class Loot
 {
     public DateTime Timestamp { get; set; }
 
-    public string ItemString { get; set; }
+    public ItemString ItemString { get; set; }
 
     public decimal GearPoints { get; set; }
 }

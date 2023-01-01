@@ -17,6 +17,21 @@ namespace EPGP.API.Controllers
             return Ok();
         }
 
+        [HttpPost("DeleteDatabase")]
+        public IActionResult DeleteDatabase()
+        {
+            _adminService.DeleteDatabases();
+            return Ok();
+        }
+
+        [HttpPost("RecreateDatabase")]
+        public IActionResult RecreateDatabase()
+        {
+            _adminService.DeleteDatabases();
+            _adminService.CreateDatabases();
+            return Ok();
+        }
+
         [HttpPost("FillRaiderDetails")]
         public async Task<IActionResult> FillRaiderDetails()
         {

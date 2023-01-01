@@ -21,5 +21,11 @@ namespace EPGP.Data.Repositories
         int AddLootHistoryDetailed(LootHistoryDetailed lootHistoryDetailed);
 
         void UpdateLootHistoryDetailed(LootHistoryDetailed lootHistoryDetailed);
+
+        void AddItemStringAdditionalIds(ICollection<ItemStringAdditionalIds> itemStringAdditionalIds);
+
+        void AddModifiers(ICollection<Modifier> modifiers);
+
+        int AddItemString(Data.DbContexts.ItemString itemString);
     }
 }

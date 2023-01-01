@@ -4,6 +4,8 @@
     {
         void CreateDatabases();
 
+        void DeleteDatabases();
+
         Task FillRaiderDetails();
     }
 }

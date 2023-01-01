@@ -25,7 +25,29 @@ namespace EPGP.Data.Repositories
                 .OrderBy(lh => lh.Date)
 
                 .Include(lh => lh.LootHistoryGearPoints)
+                    .ThenInclude(x => x.ItemString)
+                    .ThenInclude(x => x.BonusIds)
+                .Include(lh => lh.LootHistoryGearPoints.ItemString)
+                    .ThenInclude(x => x.Modifiers)
+                .Include(lh => lh.LootHistoryGearPoints.ItemString)
+                    .ThenInclude(x => x.Relic1BonusIds)
+                .Include(lh => lh.LootHistoryGearPoints.ItemString)
+                    .ThenInclude(x => x.Relic2BonusIds)
+                .Include(lh => lh.LootHistoryGearPoints.ItemString)
+                    .ThenInclude(x => x.Relic3BonusIds)
+
                 .Include(lh => lh.LootHistoryDetailed)
+                    .ThenInclude(x => x.ItemString)
+                    .ThenInclude(x => x.BonusIds)
+                .Include(lh => lh.LootHistoryDetailed.ItemString)
+                    .ThenInclude(x => x.Modifiers)
+                .Include(lh => lh.LootHistoryDetailed.ItemString)
+                    .ThenInclude(x => x.Relic1BonusIds)
+                .Include(lh => lh.LootHistoryDetailed.ItemString)
+                    .ThenInclude(x => x.Relic2BonusIds)
+                .Include(lh => lh.LootHistoryDetailed.ItemString)
+                    .ThenInclude(x => x.Relic3BonusIds)
+
                 .ToList();
 
             return (result.Take(pageSize), result.Count);
@@ -78,6 +100,25 @@ namespace EPGP.Data.Repositories
                 .Include(lhm => lhm.LootHistoryGearPoints)
                 .Include(lhm => lhm.LootHistoryDetailed)
                 .ToList();
+        }
+
+        public void AddItemStringAdditionalIds(ICollection<ItemStringAdditionalIds> itemStringAdditionalIds)
+        {
+            _epgpContext.ItemStringAdditionalIds.AddRange(itemStringAdditionalIds);
+            _epgpContext.SaveChanges();
+        }
+
+        public int AddItemString(ItemString itemString)
+        {
+            _epgpContext.ItemStrings.Add(itemString);
+            _epgpContext.SaveChanges();
+            return itemString.ItemStringId;
+        }
+
+        public void AddModifiers(ICollection<Modifier> modifiers)
+        {
+            _epgpContext.Modifiers.AddRange(modifiers);
+            _epgpContext.SaveChanges();
         }
     }
 }
