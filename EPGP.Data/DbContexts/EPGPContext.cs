@@ -158,6 +158,8 @@ public class ItemString
     public string? CrafterGuid { get; set; }
 
     public string? ExtraEnchantId { get; set; }
+
+    public string InputString { get; set; }
 }
 
 public class ItemStringAdditionalIds

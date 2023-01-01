@@ -69,9 +69,11 @@ namespace EPGP.API.Services
 
             foreach (var uploadedLoot in uploadEPGPLoots)
             {
+                var itemStringObject = ConvertItemStringToObject(uploadedLoot.ItemString);
+
                 if (existingLoot.Any(el =>
                     el.Raider.CharacterName == uploadedLoot.CharacterName &&
-                    el.LootHistoryGearPoints.ItemString == ConvertItemStringToObject(uploadedLoot.ItemString) &&
+                    el.LootHistoryGearPoints.ItemString.InputString == itemStringObject.InputString &&
                     el.LootHistoryGearPoints.GearPoints == uploadedLoot.GearPoints
                 ))
                 {
@@ -82,7 +84,7 @@ namespace EPGP.API.Services
 
                 var lootHistoryGearPointsId = _lootHistoryRepo.AddLootHistoryGearPoints(new LootHistoryGearPoints
                 {
-                    ItemStringId = ConvertItemStringToObject(uploadedLoot.ItemString).ItemStringId,
+                    ItemStringId = itemStringObject.ItemStringId,
                     GearPoints = uploadedLoot.GearPoints
                 });
 
@@ -167,13 +169,18 @@ namespace EPGP.API.Services
         {
             var itemStringSplit = itemString.Split(":");
 
-            var result = new ItemString();
+            var result = new ItemString
+            {
+                InputString = itemString
+            };
 
             var bonusIdDone = false;
             var modifierDone = false;
             var relic1BonusDone = false;
             var relic2BonusDone = false;
             var relic3BonusDone = false;
+            var crafterGuidDone = false;
+            var extraEnchantIdDone = false;
 
             for (int i = 1; i < itemStringSplit.Length; i++)
             {
@@ -236,6 +243,18 @@ namespace EPGP.API.Services
                         if (!relic3BonusDone)
                         {
                             (result.Relic3BonusIds, i, relic3BonusDone) = RetrieveDynamicIds(value, itemStringSplit, i, AdditionalIdType.Relic3BonusId);
+                            break;
+                        }
+                        if (!crafterGuidDone)
+                        {
+                            result.CrafterGuid = value;
+                            crafterGuidDone = true;
+                            break;
+                        }
+                        if (!extraEnchantIdDone)
+                        {
+                            result.ExtraEnchantId = value;
+                            extraEnchantIdDone = true;
                             break;
                         }
                         break;

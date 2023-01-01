@@ -98,27 +98,48 @@ namespace EPGP.Data.Repositories
                 .Where(lhm => DateOnly.FromDateTime(lhm.Date) == date)
                 .Include(lhm => lhm.Raider)
                 .Include(lhm => lhm.LootHistoryGearPoints)
+                    .ThenInclude(x => x.ItemString)
                 .Include(lhm => lhm.LootHistoryDetailed)
                 .ToList();
         }
 
         public void AddItemStringAdditionalIds(ICollection<ItemStringAdditionalIds> itemStringAdditionalIds)
         {
-            _epgpContext.ItemStringAdditionalIds.AddRange(itemStringAdditionalIds);
-            _epgpContext.SaveChanges();
+            if (!itemStringAdditionalIds.Except(_epgpContext.ItemStringAdditionalIds).Any())
+            {
+                var newIds = itemStringAdditionalIds.Where(i => _epgpContext.ItemStringAdditionalIds.Any(j => i.AdditionalId == j.AdditionalId));
+                _epgpContext.ItemStringAdditionalIds.AddRange(newIds);
+                _epgpContext.SaveChanges();
+            }
         }
 
         public int AddItemString(ItemString itemString)
         {
-            _epgpContext.ItemStrings.Add(itemString);
-            _epgpContext.SaveChanges();
-            return itemString.ItemStringId;
+            var id = -1;
+
+            if (_epgpContext.ItemStrings.Any(i => i.InputString == itemString.InputString))
+            {
+                id = _epgpContext.ItemStrings.First(i => i.InputString == itemString.InputString).ItemStringId;
+            }
+            else
+            {
+                _epgpContext.ItemStrings.Add(itemString);
+                _epgpContext.SaveChanges();
+
+                id = itemString.ItemStringId;
+            }
+
+            return id;
         }
 
         public void AddModifiers(ICollection<Modifier> modifiers)
         {
-            _epgpContext.Modifiers.AddRange(modifiers);
-            _epgpContext.SaveChanges();
+            if (!modifiers.Except(_epgpContext.Modifiers).Any())
+            {
+                var newModifiers = modifiers.Where(i => _epgpContext.Modifiers.Any(j => j.ModifierType == i.ModifierType && j.ModifierValue == i.ModifierValue));
+                _epgpContext.Modifiers.AddRange(newModifiers);
+                _epgpContext.SaveChanges();
+            }
         }
     }
 }
