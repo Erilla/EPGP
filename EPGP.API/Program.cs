@@ -5,10 +5,13 @@ using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHttpClient();
 
 var configuration = new ConfigurationBuilder()
                  .SetBasePath(Directory.GetCurrentDirectory())
@@ -43,12 +46,17 @@ builder.Services
     .AddTransient<IPointsRepository, PointsRepository>()
     .AddTransient<ILootService, LootService>()
     .AddTransient<ILootHistoryRepository, LootHistoryRepository>()
+    .AddTransient<IRaiderIoService, RaiderIoService>()
     .AddTransient<IRaiderService, RaiderService>()
     .AddTransient<IRaiderRepository, RaiderRepository>()
     .AddTransient<IUploadsService, UploadsService>()
     .AddTransient<ILootHistoryRepository, LootHistoryRepository>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(x =>
+{
+    // serialize enums as strings in api responses (e.g. Role)
+    x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services
     .AddEntityFrameworkNpgsql()

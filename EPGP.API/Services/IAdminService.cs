@@ -3,5 +3,7 @@
     public interface IAdminService
     {
         void CreateDatabases();
+
+        Task FillRaiderDetails();
     }
 }

@@ -13,9 +13,11 @@ namespace EPGP.API.Services
         private readonly IPointsService _pointsService;
         private readonly IBackgroundJobClient _backgroundJobs;
         private readonly ILootHistoryRepository _lootHistoryRepo;
+        private readonly IRaiderIoService _raiderIoService;
 
-        public UploadsService(IRaiderService raiderService, IPointsService pointsService, IBackgroundJobClient backgroundJobs, ILootHistoryRepository lootHistoryRepo) =>
-            (_raiderService, _pointsService, _backgroundJobs, _lootHistoryRepo) = (raiderService, pointsService, backgroundJobs, lootHistoryRepo);
+
+        public UploadsService(IRaiderService raiderService, IPointsService pointsService, IBackgroundJobClient backgroundJobs, ILootHistoryRepository lootHistoryRepo, IRaiderIoService raiderIoService) =>
+            (_raiderService, _pointsService, _backgroundJobs, _lootHistoryRepo, _raiderIoService) = (raiderService, pointsService, backgroundJobs, lootHistoryRepo, raiderIoService);
 
         public UploadEPGPResponse ProcessEPGP(UploadEPGPRequest request)
         {
@@ -41,15 +43,18 @@ namespace EPGP.API.Services
             };
         }
 
-        public void ProcessRoster(Region region, IEnumerable<UploadEPGPRoster> roster)
+        public async Task ProcessRoster(Region region, IEnumerable<UploadEPGPRoster> roster)
         {
             foreach (var raider in roster)
             {
+                var characterProfile = await _raiderIoService.GetCharactersProfile(region, raider.Realm, raider.CharacterName);
+
                 var raiderId = _raiderService.CreateRaider(new Models.Raider
                 {
                     CharacterName = raider.CharacterName,
                     Realm = raider.Realm,
                     Region = region,
+                    Class = (Class)Enum.Parse(typeof(Class), characterProfile.Class, true)
                 });
 
                 _pointsService.UpdateEffortPoints(raiderId, raider.EffortPoints);

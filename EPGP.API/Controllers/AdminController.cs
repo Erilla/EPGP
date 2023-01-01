@@ -16,5 +16,12 @@ namespace EPGP.API.Controllers
             _adminService.CreateDatabases();
             return Ok();
         }
+
+        [HttpPost("FillRaiderDetails")]
+        public async Task<IActionResult> FillRaiderDetails()
+        {
+            await _adminService.FillRaiderDetails();
+            return Ok();
+        }
     }
 }
