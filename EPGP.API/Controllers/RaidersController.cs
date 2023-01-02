@@ -15,7 +15,11 @@ namespace EPGP.API.Controllers
 
 
         [HttpGet("{raiderId}")]
-        public Raider Get(int raiderId) => _raiderService.GetRaider(raiderId);
+        public Raider? Get(int raiderId)
+        {
+            var raider = _raiderService.GetRaider(raiderId);
+            return raider;
+        }
 
         [HttpPost]
         public void Post([FromBody] CreateRaiderRequest request)
@@ -28,5 +32,8 @@ namespace EPGP.API.Controllers
                 Region = request.Region,
             });
         }
+
+        [HttpDelete("{raiderId}")]
+        public void Delete(int raiderId) => _raiderService.DeleteRaider(raiderId);
     }
 }

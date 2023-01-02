@@ -15,5 +15,7 @@ namespace EPGP.API.Models
         public Class Class { get; set; }
 
         public Points Points { get; set; }
+
+        public bool Active { get; set; }
     }
 }

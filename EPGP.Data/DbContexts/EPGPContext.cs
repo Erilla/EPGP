@@ -25,6 +25,8 @@ public class EPGPContext : DbContext
 
     public DbSet<Modifier> Modifiers { get; set; }
 
+    public DbSet<UploadHistory> UploadHistories { get; set; }
+
 }
 
 public class Raider
@@ -40,9 +42,11 @@ public class Raider
 
     public Class Class { get; set; }
 
-    public virtual EffortPoints EffortPoints { get; set; }
+    public bool Active { get; set; }
 
-    public virtual GearPoints GearPoints { get; set; }
+    public virtual IEnumerable<EffortPoints> EffortPoints { get; set; }
+
+    public virtual IEnumerable<GearPoints> GearPoints { get; set; }
 
     public virtual IEnumerable<LootHistoryMatch> LootHistory { get; set; }
 }
@@ -51,6 +55,8 @@ public class EffortPoints
 {
     [Key]
     public int EffortPointsId { get; set; }
+
+    public DateTime Timestamp { get; set; }
 
     public int RaiderId { get; set; }
 
@@ -63,6 +69,8 @@ public class GearPoints
 {
     [Key]
     public int GearPointsId { get; set; }
+
+    public DateTime Timestamp { get; set; }
 
     public int RaiderId { get; set; }
 
@@ -180,4 +188,16 @@ public class Modifier
     public string ModifierType { get; set; }
 
     public string ModifierValue { get; set; }
+}
+
+public class UploadHistory
+{
+    [Key]
+    public int UploadHistoryId { get; set; }
+
+    public DateTime Timestamp { get; set; }
+
+    public string UploadedContent { get; set; }
+
+    public UploadType Type { get; set; }
 }

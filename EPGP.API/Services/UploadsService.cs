@@ -4,6 +4,7 @@ using EPGP.Data.DbContexts;
 using EPGP.Data.Enums;
 using EPGP.Data.Repositories;
 using Hangfire;
+using Newtonsoft.Json;
 
 namespace EPGP.API.Services
 {
@@ -15,20 +16,23 @@ namespace EPGP.API.Services
         private readonly IBackgroundJobClient _backgroundJobs;
         private readonly ILootHistoryRepository _lootHistoryRepo;
         private readonly IRaiderIoService _raiderIoService;
+        private readonly IUploadHistoryRepository _uploadHistoryRepo;
 
 
-        public UploadsService(IRaiderService raiderService, IPointsService pointsService, IBackgroundJobClient backgroundJobs, ILootHistoryRepository lootHistoryRepo, IRaiderIoService raiderIoService, ILootService lootService) =>
-            (_raiderService, _pointsService, _backgroundJobs, _lootHistoryRepo, _raiderIoService, _lootService) = (raiderService, pointsService, backgroundJobs, lootHistoryRepo, raiderIoService, lootService);
+        public UploadsService(IRaiderService raiderService, IPointsService pointsService, IBackgroundJobClient backgroundJobs, ILootHistoryRepository lootHistoryRepo, IRaiderIoService raiderIoService, ILootService lootService, IUploadHistoryRepository uploadHistoryRepo) =>
+            (_raiderService, _pointsService, _backgroundJobs, _lootHistoryRepo, _raiderIoService, _lootService, _uploadHistoryRepo) = (raiderService, pointsService, backgroundJobs, lootHistoryRepo, raiderIoService, lootService, uploadHistoryRepo);
 
-        public UploadEPGPResponse ProcessEPGP(UploadEPGPRequest request)
+        public UploadEPGPResponse ProcessEPGP(string request)
         {
-            var region = string.IsNullOrEmpty(request.Region) ? Region.Unknown : (Region)Enum.Parse(typeof(Region), request.Region);
+            var requestObject = JsonConvert.DeserializeObject<UploadEPGPRequest>(request);
 
-            var rosterJobId = _backgroundJobs.Enqueue(() => ProcessRoster(region, ConvertRosterObjectToClass(request.Roster)));
+            var region = string.IsNullOrEmpty(requestObject.Region) ? Region.Unknown : (Region)Enum.Parse(typeof(Region), requestObject.Region);
+
+            var rosterJobId = _backgroundJobs.Enqueue(() => ProcessRoster(region, ConvertRosterObjectToClass(requestObject.Roster)));
 
             var lootJobIds = new List<string>();
 
-            foreach (var lootByDate in ConvertLootObjectToClass(request.Loot))
+            foreach (var lootByDate in ConvertLootObjectToClass(requestObject.Loot))
             {
                 lootJobIds.Add(_backgroundJobs
                     .ContinueJobWith(
@@ -36,6 +40,13 @@ namespace EPGP.API.Services
                         () => ProcessLoot(lootByDate.Key, lootByDate.ToList())
                     ));
             }
+
+            _uploadHistoryRepo.SaveUploadHistory(new UploadHistory
+            {
+                Timestamp = DateTime.Now.ToUniversalTime(),
+                Type = UploadType.EPGP,
+                UploadedContent = request
+            });
 
             return new UploadEPGPResponse
             {
@@ -46,8 +57,12 @@ namespace EPGP.API.Services
 
         public async Task ProcessRoster(Region region, IEnumerable<UploadEPGPRoster> roster)
         {
+            _raiderService.SetAllRaidersInactive();
+
             foreach (var raider in roster)
             {
+                if (raider.EffortPoints == 0) continue;
+
                 var characterProfile = await _raiderIoService.GetCharactersProfile(region, raider.Realm, raider.CharacterName);
 
                 var raiderId = _raiderService.CreateRaider(new Models.Raider
@@ -55,11 +70,22 @@ namespace EPGP.API.Services
                     CharacterName = raider.CharacterName,
                     Realm = raider.Realm,
                     Region = region,
-                    Class = (Class)Enum.Parse(typeof(Class), characterProfile.Class, true)
+                    Class = (Class)Enum.Parse(typeof(Class), characterProfile.Class, true),
+                    Active = true
                 });
 
-                _pointsService.UpdateEffortPoints(raiderId, raider.EffortPoints);
-                _pointsService.UpdateGearPoints(raiderId, raider.GearPoints);
+                if (!raiderId.HasValue)
+                {
+                    var existingRaider = _raiderService.GetRaider(raider.CharacterName, raider.Realm);
+                    if (existingRaider == null) continue;
+
+                    raiderId = existingRaider.RaiderId;
+
+                    _raiderService.SetRaiderActivity(raiderId.Value, true);
+                }
+
+                _pointsService.UpdateEffortPoints(raiderId.Value, raider.EffortPoints);
+                _pointsService.UpdateGearPoints(raiderId.Value, raider.GearPoints);
             }
         }
 

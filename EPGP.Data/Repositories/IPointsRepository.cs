@@ -10,11 +10,11 @@ namespace EPGP.Data.Repositories
 
         void UpdateGearPoints(int raiderId, decimal points);
 
-        EffortPoints? GetEffortPoints(int raiderId);
+        EffortPoints? GetLatestEffortPoints(int raiderId);
 
         IEnumerable<EffortPoints> GetAllEffortPoints();
 
-        GearPoints? GetGearPoints(int raiderId);
+        GearPoints? GetLatestGearPoints(int raiderId);
 
         IEnumerable<GearPoints> GetAllGearPoints();
     }

@@ -1,11 +1,12 @@
 ﻿using EPGP.API.Models;
+using EPGP.API.Responses;
 
 namespace EPGP.API.Services;
 public interface IPointsService
 {
     Raider GetPoints(int raiderId);
 
-    IEnumerable<Raider> GetAllPoints();
+    AllRaiderPointsResponse? GetAllPoints();
 
     void UpdateEffortPoints(int raiderId, decimal points);
 

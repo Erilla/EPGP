@@ -23,7 +23,7 @@ namespace EPGP.Data.Repositories
         {
             var result = _epgpContext.LootHistoryMatch
                 .Where(lh => lh.RaiderId == raiderId)
-                .OrderBy(lh => lh.Date)
+                .OrderByDescending(lh => lh.Date)
 
                 .Include(lh => lh.LootHistoryGearPoints)
                     .ThenInclude(x => x.ItemString)

@@ -1,9 +1,8 @@
-﻿using EPGP.API.Requests;
-using EPGP.API.Responses;
+﻿using EPGP.API.Responses;
 
 namespace EPGP.API.Services;
 
 public interface IUploadsService
 {
-    UploadEPGPResponse ProcessEPGP(UploadEPGPRequest request);
+    UploadEPGPResponse ProcessEPGP(string request);
 }

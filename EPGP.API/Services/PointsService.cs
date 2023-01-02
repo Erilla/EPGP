@@ -1,4 +1,5 @@
 ﻿using EPGP.API.Models;
+using EPGP.API.Responses;
 using EPGP.Data.Repositories;
 
 namespace EPGP.API.Services
@@ -7,14 +8,15 @@ namespace EPGP.API.Services
     {
         private readonly IPointsRepository _pointsRepository;
         private readonly IRaiderRepository _raiderRepository;
+        private readonly IUploadHistoryRepository _uploadHistoryRepository;
 
-        public PointsService(IPointsRepository pointsRepository, IRaiderRepository raiderRepository) => (_pointsRepository, _raiderRepository) = (pointsRepository, raiderRepository);
+        public PointsService(IPointsRepository pointsRepository, IRaiderRepository raiderRepository, IUploadHistoryRepository uploadHistoryRepository) => (_pointsRepository, _raiderRepository, _uploadHistoryRepository) = (pointsRepository, raiderRepository, uploadHistoryRepository);
 
         public Raider GetPoints(int raiderId)
         {
             var raider = _raiderRepository.GetRaider(raiderId);
-            var effortPoints = _pointsRepository.GetEffortPoints(raiderId);
-            var gearPoints = _pointsRepository.GetGearPoints(raiderId);
+            var effortPoints = _pointsRepository.GetLatestEffortPoints(raiderId);
+            var gearPoints = _pointsRepository.GetLatestGearPoints(raiderId);
 
             return new Raider
             {
@@ -31,13 +33,29 @@ namespace EPGP.API.Services
             };
         }
 
-        public IEnumerable<Raider> GetAllPoints()
+        public AllRaiderPointsResponse? GetAllPoints()
         {
+            var lastUploadedDate = _uploadHistoryRepository.GetLatestUploadDateTime();
+            if (lastUploadedDate == null) return null;
+
             var raiders = _raiderRepository.GetAllRaiders();
 
-            return raiders
-                .Select(r =>
+            return new AllRaiderPointsResponse
+            {
+                LastUploadedDate = lastUploadedDate.Value,
+                Raiders = raiders
+                    .Where(r => r.Active)
+                    .Select(r =>
                     {
+                        var effortPoints = r.EffortPoints.OrderByDescending(p => p.Timestamp).Take(2);
+                        var gearPoints = r.GearPoints.OrderByDescending(p => p.Timestamp).Take(2);
+
+                        var currentEffortPoints = effortPoints.FirstOrDefault()?.Points ?? 0;
+                        var currentGearPoints = gearPoints.FirstOrDefault()?.Points ?? 0;
+
+                        var previousEffortPoints = effortPoints.LastOrDefault()?.Points ?? 0;
+                        var previousGearPoints = gearPoints.LastOrDefault()?.Points ?? 0;
+
                         return new Raider
                         {
                             RaiderId = r.RaiderId,
@@ -47,12 +65,17 @@ namespace EPGP.API.Services
                             Class = r.Class,
                             Points = new Points
                             {
-                                EffortPoints = r.EffortPoints?.Points ?? 0,
-                                GearPoints = r.GearPoints?.Points ?? 0
-                            }
+                                EffortPoints = currentEffortPoints,
+                                EffortPointsDifference = currentEffortPoints - previousEffortPoints,
+                                GearPoints = currentGearPoints,
+                                GearPointsDifference = currentGearPoints - previousGearPoints,
+
+                            },
+                            Active = r.Active
                         };
                     })
-                .OrderByDescending(r => r.Points.Priority);
+                    .OrderByDescending(r => r.Points.Priority)
+            };
         }
 
         public void UpdateEffortPoints(int raiderId, decimal points) => _pointsRepository.UpdateEffortPoints(raiderId, points);

@@ -13,7 +13,7 @@ namespace EPGP.Data.Repositories
 
         void UpdateRaider(Raider raider);
 
-        Raider GetRaider(int raiderId);
+        Raider? GetRaider(int raiderId);
 
         void DeleteRaider(int raiderId);
 

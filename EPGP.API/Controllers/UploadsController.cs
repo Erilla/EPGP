@@ -1,7 +1,7 @@
-﻿using EPGP.API.Requests;
-using EPGP.API.Responses;
+﻿using EPGP.API.Responses;
 using EPGP.API.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace EPGP.API.Controllers
 {
@@ -14,9 +14,10 @@ namespace EPGP.API.Controllers
         public UploadsController(IUploadsService uploadService) => (_uploadService) = (uploadService);
 
         [HttpPost("epgp")]
-        public UploadEPGPResponse UploadEPGP([FromBody] UploadEPGPRequest request)
+        public UploadEPGPResponse UploadEPGP([FromBody] JsonElement request)
         {
-            return _uploadService.ProcessEPGP(request);
+            string json = JsonSerializer.Serialize(request);
+            return _uploadService.ProcessEPGP(json);
         }
     }
 }

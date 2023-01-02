@@ -1,5 +1,6 @@
 ﻿using EPGP.API.Models;
 using EPGP.API.Requests;
+using EPGP.API.Responses;
 using EPGP.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +20,7 @@ namespace EPGP.API.Controllers
         public Raider Get(int raiderId) => _pointsService.GetPoints(raiderId);
 
         [HttpGet("raider/all")]
-        public IEnumerable<Raider> GetAll() => _pointsService.GetAllPoints();
+        public AllRaiderPointsResponse? GetAll() => _pointsService.GetAllPoints();
 
         // POST api/<PointsController>
         [HttpPost("/raider/{raiderId}")]

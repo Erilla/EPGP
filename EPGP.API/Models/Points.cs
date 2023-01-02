@@ -4,7 +4,11 @@
     {
         public decimal EffortPoints { get; set; }
 
+        public decimal EffortPointsDifference { get; set; }
+
         public decimal GearPoints { get; set; }
+
+        public decimal GearPointsDifference { get; set; }
 
         public decimal Priority => GearPoints == 0 ? 0 : EffortPoints / GearPoints;
     }

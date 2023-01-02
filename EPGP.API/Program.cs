@@ -11,6 +11,7 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.Services.AddHttpClient();
 
 var configuration = new ConfigurationBuilder()
@@ -50,7 +51,8 @@ builder.Services
     .AddTransient<IRaiderService, RaiderService>()
     .AddTransient<IRaiderRepository, RaiderRepository>()
     .AddTransient<IUploadsService, UploadsService>()
-    .AddTransient<ILootHistoryRepository, LootHistoryRepository>();
+    .AddTransient<ILootHistoryRepository, LootHistoryRepository>()
+    .AddTransient<IUploadHistoryRepository, UploadHistoryRepository>();
 
 builder.Services.AddAutoMapper(typeof(Program));
 

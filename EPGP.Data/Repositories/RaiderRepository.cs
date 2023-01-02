@@ -35,10 +35,10 @@ public class RaiderRepository : IRaiderRepository
             .ToList();
     }
 
-    public Raider GetRaider(int raiderId)
+    public Raider? GetRaider(int raiderId)
     {
         return _epgpContext.Raiders
-            .Single(r => r.RaiderId == raiderId);
+            .SingleOrDefault(r => r.RaiderId == raiderId);
     }
 
     public IEnumerable<Raider> GetRaider(string characterName, string realm, Region region = Region.Unknown, Class characterClass = Class.Unknown)
@@ -66,6 +66,10 @@ public class RaiderRepository : IRaiderRepository
 
     public void DeleteRaider(int raiderId)
     {
-        throw new NotImplementedException();
+        var raider = GetRaider(raiderId);
+        if (raider == null) return;
+
+        _epgpContext.Remove(raider);
+        _epgpContext.SaveChanges();
     }
 }

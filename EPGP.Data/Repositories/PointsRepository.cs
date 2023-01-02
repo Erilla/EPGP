@@ -12,6 +12,7 @@ namespace EPGP.Data.Repositories
         {
             var effortPoints = new EffortPoints
             {
+                Timestamp = DateTime.Now.ToUniversalTime(),
                 RaiderId = raiderId,
                 Points = 0
             };
@@ -20,6 +21,7 @@ namespace EPGP.Data.Repositories
 
             var gearPoints = new GearPoints
             {
+                Timestamp = DateTime.Now.ToUniversalTime(),
                 RaiderId = raiderId,
                 Points = 0
             };
@@ -29,9 +31,9 @@ namespace EPGP.Data.Repositories
             return (effortPoints.EffortPointsId, gearPoints.GearPointsId);
         }
 
-        public EffortPoints? GetEffortPoints(int raiderId)
+        public EffortPoints? GetLatestEffortPoints(int raiderId)
         {
-            return _epgpContext.EffortPoints.SingleOrDefault(s => s.RaiderId == raiderId);
+            return _epgpContext.EffortPoints.OrderByDescending(ep => ep.Timestamp).FirstOrDefault(s => s.RaiderId == raiderId);
         }
 
         public IEnumerable<EffortPoints> GetAllEffortPoints()
@@ -39,9 +41,9 @@ namespace EPGP.Data.Repositories
             return _epgpContext.EffortPoints;
         }
 
-        public GearPoints? GetGearPoints(int raiderId)
+        public GearPoints? GetLatestGearPoints(int raiderId)
         {
-            return _epgpContext.GearPoints.SingleOrDefault(s => s.RaiderId == raiderId);
+            return _epgpContext.GearPoints.OrderByDescending(ep => ep.Timestamp).FirstOrDefault(s => s.RaiderId == raiderId);
         }
 
         public IEnumerable<GearPoints> GetAllGearPoints()
@@ -51,21 +53,29 @@ namespace EPGP.Data.Repositories
 
         public void UpdateEffortPoints(int raiderId, decimal points)
         {
-            var effortPoints = GetEffortPoints(raiderId);
-            if (effortPoints == null) throw new ArgumentException($"Unable to find effort points for Raider Id {raiderId}");
+            var newEffortPoints = new EffortPoints
+            {
+                Timestamp = DateTime.Now.ToUniversalTime(),
+                Points = points,
+                RaiderId = raiderId
+            };
 
-            effortPoints.Points = points;
-            _epgpContext.EffortPoints.Update(effortPoints);
+            _epgpContext.EffortPoints.Add(newEffortPoints);
             _epgpContext.SaveChanges();
         }
 
         public void UpdateGearPoints(int raiderId, decimal points)
         {
-            var gearPoints = GetGearPoints(raiderId);
-            if (gearPoints == null) throw new ArgumentException($"Unable to find effort points for Raider Id {raiderId}");
+            var latestGearPoints = GetLatestGearPoints(raiderId);
 
-            gearPoints.Points = points;
-            _epgpContext.GearPoints.Update(gearPoints);
+            var newGearPoints = new GearPoints
+            {
+                Timestamp = DateTime.Now.ToUniversalTime(),
+                Points = points,
+                RaiderId = raiderId
+            };
+
+            _epgpContext.GearPoints.Add(newGearPoints);
             _epgpContext.SaveChanges();
         }
     }
