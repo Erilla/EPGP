@@ -27,8 +27,7 @@ builder.Services.AddCors(options =>
                           policy
                             .WithOrigins(configuration["AllowedCors"] ?? "*")
                             .AllowAnyHeader()
-                            .AllowAnyMethod()
-                            .AllowCredentials();
+                            .AllowAnyMethod();
                       });
 });
 
