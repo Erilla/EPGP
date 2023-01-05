@@ -6,7 +6,7 @@ public interface IPointsService
 {
     Raider GetPoints(int raiderId);
 
-    AllRaiderPointsResponse? GetAllPoints();
+    AllRaiderPointsResponse? GetAllPoints(DateTime? cutoffDate);
 
     void UpdateEffortPoints(int raiderId, decimal points);
 

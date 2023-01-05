@@ -20,7 +20,7 @@ namespace EPGP.API.Controllers
         public Raider Get(int raiderId) => _pointsService.GetPoints(raiderId);
 
         [HttpGet("raider/all")]
-        public AllRaiderPointsResponse? GetAll() => _pointsService.GetAllPoints();
+        public AllRaiderPointsResponse? GetAll(DateTime? cutoffDate) => _pointsService.GetAllPoints(cutoffDate);
 
         // POST api/<PointsController>
         [HttpPost("/raider/{raiderId}")]

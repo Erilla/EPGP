@@ -33,8 +33,9 @@ namespace EPGP.API.Services
             };
         }
 
-        public AllRaiderPointsResponse? GetAllPoints()
+        public AllRaiderPointsResponse? GetAllPoints(DateTime? cutOffDate)
         {
+            if (!cutOffDate.HasValue) cutOffDate = CalculateCutoffDate();
             var lastUploadedDate = _uploadHistoryRepository.GetLatestUploadDateTime();
             if (lastUploadedDate == null) return null;
 
@@ -43,18 +44,21 @@ namespace EPGP.API.Services
             return new AllRaiderPointsResponse
             {
                 LastUploadedDate = lastUploadedDate.Value,
+                CutOffDate = cutOffDate.Value,
                 Raiders = raiders
                     .Where(r => r.Active)
                     .Select(r =>
                     {
-                        var effortPoints = r.EffortPoints.OrderByDescending(p => p.Timestamp).Take(2);
-                        var gearPoints = r.GearPoints.OrderByDescending(p => p.Timestamp).Take(2);
+                        var effortPoints = r.EffortPoints
+                            .OrderByDescending(p => p.Timestamp);
+                        var gearPoints = r.GearPoints
+                            .OrderByDescending(p => p.Timestamp);
 
                         var currentEffortPoints = effortPoints.FirstOrDefault()?.Points ?? 0;
                         var currentGearPoints = gearPoints.FirstOrDefault()?.Points ?? 0;
 
-                        var previousEffortPoints = effortPoints.LastOrDefault()?.Points ?? 0;
-                        var previousGearPoints = gearPoints.LastOrDefault()?.Points ?? 0;
+                        var earliestEffortPoints = effortPoints.Where(p => p.Timestamp > cutOffDate.Value).LastOrDefault()?.Points ?? currentEffortPoints;
+                        var earliestGearPoints = gearPoints.Where(p => p.Timestamp > cutOffDate.Value).LastOrDefault()?.Points ?? currentGearPoints;
 
                         return new Raider
                         {
@@ -66,9 +70,9 @@ namespace EPGP.API.Services
                             Points = new Points
                             {
                                 EffortPoints = currentEffortPoints,
-                                EffortPointsDifference = currentEffortPoints - previousEffortPoints,
+                                EffortPointsDifference = currentEffortPoints - earliestEffortPoints,
                                 GearPoints = currentGearPoints,
-                                GearPointsDifference = currentGearPoints - previousGearPoints,
+                                GearPointsDifference = currentGearPoints - earliestGearPoints,
 
                             },
                             Active = r.Active
@@ -81,5 +85,51 @@ namespace EPGP.API.Services
         public void UpdateEffortPoints(int raiderId, decimal points) => _pointsRepository.UpdateEffortPoints(raiderId, points);
 
         public void UpdateGearPoints(int raiderId, decimal points) => _pointsRepository.UpdateGearPoints(raiderId, points);
+
+        private DateTime CalculateCutoffDate()
+        {
+            var today = DateTime.Now;
+
+            var cutOffTime = new TimeSpan(18, 0, 0);
+            DayOfWeek cuttOffDayOfWeek;
+
+            switch (today.DayOfWeek)
+            {
+                case DayOfWeek.Sunday:
+                    if (today.TimeOfDay < cutOffTime)
+                        cuttOffDayOfWeek = DayOfWeek.Wednesday;
+                    else
+                        cuttOffDayOfWeek = DayOfWeek.Sunday;
+                    break;
+                case DayOfWeek.Monday:
+                case DayOfWeek.Tuesday:
+                    cuttOffDayOfWeek = DayOfWeek.Sunday;
+                    break;
+                case DayOfWeek.Wednesday:
+                    if (today.TimeOfDay < cutOffTime)
+                        cuttOffDayOfWeek = DayOfWeek.Sunday;
+                    else
+                        cuttOffDayOfWeek = DayOfWeek.Wednesday;
+                    break;
+                case DayOfWeek.Thursday:
+                case DayOfWeek.Friday:
+                case DayOfWeek.Saturday:
+                    cuttOffDayOfWeek = DayOfWeek.Wednesday;
+                    break;
+                default:
+                    cuttOffDayOfWeek = DayOfWeek.Sunday;
+                    break;
+            }
+
+            return PreviousDayOfWeek(today.Date + cutOffTime, cuttOffDayOfWeek);
+
+        }
+
+        private static DateTime PreviousDayOfWeek(DateTime today, DayOfWeek dayOfTheWeek)
+        {
+            var days = ((int)dayOfTheWeek - (int)today.DayOfWeek - 7) % 7;
+            return today.AddDays(days);
+        }
+
     }
 }
