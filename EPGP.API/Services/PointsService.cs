@@ -1,5 +1,6 @@
 ﻿using EPGP.API.Models;
 using EPGP.API.Responses;
+using EPGP.Data.Enums;
 using EPGP.Data.Repositories;
 
 namespace EPGP.API.Services
@@ -33,7 +34,7 @@ namespace EPGP.API.Services
             };
         }
 
-        public AllRaiderPointsResponse? GetAllPoints(DateTime? cutOffDate, DateTime? toDate)
+        public AllRaiderPointsResponse? GetAllPoints(DateTime? cutOffDate, DateTime? toDate = null, TierToken? tierToken = null)
         {
             if (!cutOffDate.HasValue && toDate.HasValue) throw new ArgumentException("No Cutoff/From date");
 
@@ -44,6 +45,12 @@ namespace EPGP.API.Services
             if (lastUploadedDate == null) return null;
 
             var raiders = _raiderRepository.GetAllRaiders();
+
+            if (tierToken.HasValue)
+            {
+                var classes = RetrieveClasses(tierToken.Value);
+                raiders = raiders.Where(r => classes.Contains(r.Class));
+            }
 
             return new AllRaiderPointsResponse
             {
@@ -151,6 +158,23 @@ namespace EPGP.API.Services
         {
             var days = ((int)dayOfTheWeek - (int)today.DayOfWeek - 7) % 7;
             return today.AddDays(days);
+        }
+
+        private static Class[] RetrieveClasses(TierToken tierToken)
+        {
+            switch (tierToken)
+            {
+                case TierToken.Zenith:
+                    return new Class[] { Class.Evoker, Class.Monk, Class.Rogue, Class.Warrior };
+                case TierToken.Dreadful:
+                    return new Class[] { Class.DeathKnight, Class.DemonHunter, Class.Warlock };
+                case TierToken.Mystic:
+                    return new Class[] { Class.Druid, Class.Hunter, Class.Mage };
+                case TierToken.Venerated:
+                    return new Class[] { Class.Paladin, Class.Priest, Class.Shaman };
+                default:
+                    return Array.Empty<Class>();
+            }
         }
 
     }

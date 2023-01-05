@@ -2,6 +2,7 @@
 using EPGP.API.Requests;
 using EPGP.API.Responses;
 using EPGP.API.Services;
+using EPGP.Data.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -20,7 +21,10 @@ namespace EPGP.API.Controllers
         public Raider Get(int raiderId) => _pointsService.GetPoints(raiderId);
 
         [HttpGet("raider/all")]
-        public AllRaiderPointsResponse? GetAll(DateTime? cutoffDate) => _pointsService.GetAllPoints(cutoffDate, null);
+        public AllRaiderPointsResponse? GetAll(DateTime? cutoffDate) => _pointsService.GetAllPoints(cutoffDate);
+
+        [HttpGet("raider/all/tierToken/{tierToken}")]
+        public AllRaiderPointsResponse? GetAll(DateTime? cutoffDate, TierToken tierToken) => _pointsService.GetAllPoints(cutoffDate, null, tierToken);
 
         // POST api/<PointsController>
         [HttpPost("/raider/{raiderId}")]
