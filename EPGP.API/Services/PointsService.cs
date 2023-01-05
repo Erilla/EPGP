@@ -33,9 +33,13 @@ namespace EPGP.API.Services
             };
         }
 
-        public AllRaiderPointsResponse? GetAllPoints(DateTime? cutOffDate)
+        public AllRaiderPointsResponse? GetAllPoints(DateTime? cutOffDate, DateTime? toDate)
         {
+            if (!cutOffDate.HasValue && toDate.HasValue) throw new ArgumentException("No Cutoff/From date");
+
+            if (!toDate.HasValue) toDate = DateTime.Now;
             if (!cutOffDate.HasValue) cutOffDate = CalculateCutoffDate();
+
             var lastUploadedDate = _uploadHistoryRepository.GetLatestUploadDateTime();
             if (lastUploadedDate == null) return null;
 
@@ -57,8 +61,26 @@ namespace EPGP.API.Services
                         var currentEffortPoints = effortPoints.FirstOrDefault()?.Points ?? 0;
                         var currentGearPoints = gearPoints.FirstOrDefault()?.Points ?? 0;
 
-                        var earliestEffortPoints = effortPoints.Where(p => p.Timestamp < cutOffDate.Value).FirstOrDefault()?.Points ?? currentEffortPoints;
-                        var earliestGearPoints = gearPoints.Where(p => p.Timestamp < cutOffDate.Value).FirstOrDefault()?.Points ?? currentGearPoints;
+                        var preCutoffEffortPoints = effortPoints.Where(p => p.Timestamp < cutOffDate.Value).FirstOrDefault();
+                        decimal decayedEffortPoints = currentEffortPoints;
+
+                        var preCutoffGearPoints = gearPoints.Where(p => p.Timestamp < cutOffDate.Value).FirstOrDefault();
+                        decimal decayedGearPoints = currentGearPoints;
+
+                        // Get Decayed values if it's Wednesday
+                        if (preCutoffEffortPoints != null)
+                        {
+                            decayedEffortPoints = cutOffDate.Value.DayOfWeek == DayOfWeek.Wednesday ?
+                                preCutoffEffortPoints.Points - decimal.Multiply(preCutoffEffortPoints.Points, 0.2m) :
+                                preCutoffEffortPoints.Points;
+                        }
+
+                        if (preCutoffGearPoints != null)
+                        {
+                            decayedGearPoints = cutOffDate.Value.DayOfWeek == DayOfWeek.Wednesday ?
+                                preCutoffGearPoints.Points - decimal.Multiply(preCutoffGearPoints.Points, 0.2m) :
+                                preCutoffGearPoints.Points;
+                        }
 
                         return new Raider
                         {
@@ -70,9 +92,9 @@ namespace EPGP.API.Services
                             Points = new Points
                             {
                                 EffortPoints = currentEffortPoints,
-                                EffortPointsDifference = currentEffortPoints - earliestEffortPoints,
+                                EffortPointsDifference = decimal.Round(currentEffortPoints - decayedEffortPoints, MidpointRounding.ToPositiveInfinity),
                                 GearPoints = currentGearPoints,
-                                GearPointsDifference = currentGearPoints - earliestGearPoints,
+                                GearPointsDifference = decimal.Round(currentGearPoints - decayedGearPoints, MidpointRounding.ToPositiveInfinity),
 
                             },
                             Active = r.Active
