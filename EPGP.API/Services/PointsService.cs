@@ -57,8 +57,8 @@ namespace EPGP.API.Services
                         var currentEffortPoints = effortPoints.FirstOrDefault()?.Points ?? 0;
                         var currentGearPoints = gearPoints.FirstOrDefault()?.Points ?? 0;
 
-                        var earliestEffortPoints = effortPoints.Where(p => p.Timestamp > cutOffDate.Value).LastOrDefault()?.Points ?? currentEffortPoints;
-                        var earliestGearPoints = gearPoints.Where(p => p.Timestamp > cutOffDate.Value).LastOrDefault()?.Points ?? currentGearPoints;
+                        var earliestEffortPoints = effortPoints.Where(p => p.Timestamp < cutOffDate.Value).FirstOrDefault()?.Points ?? currentEffortPoints;
+                        var earliestGearPoints = gearPoints.Where(p => p.Timestamp < cutOffDate.Value).FirstOrDefault()?.Points ?? currentGearPoints;
 
                         return new Raider
                         {
