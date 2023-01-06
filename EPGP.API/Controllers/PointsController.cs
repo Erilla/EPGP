@@ -24,7 +24,10 @@ namespace EPGP.API.Controllers
         public AllRaiderPointsResponse? GetAll(DateTime? cutoffDate) => _pointsService.GetAllPoints(cutoffDate);
 
         [HttpGet("raider/all/tierToken/{tierToken}")]
-        public AllRaiderPointsResponse? GetAll(DateTime? cutoffDate, TierToken tierToken) => _pointsService.GetAllPoints(cutoffDate, null, tierToken);
+        public AllRaiderPointsResponse? GetAll(DateTime? cutoffDate, TierToken tierToken) => _pointsService.GetAllPoints(cutoffDate, tierToken: tierToken);
+
+        [HttpGet("raider/all/armour/{armourType}")]
+        public AllRaiderPointsResponse? GetAll(DateTime? cutoffDate, ArmourType armourType) => _pointsService.GetAllPoints(cutoffDate, armourType: armourType);
 
         // POST api/<PointsController>
         [HttpPost("/raider/{raiderId}")]

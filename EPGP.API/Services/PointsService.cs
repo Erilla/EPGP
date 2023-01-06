@@ -34,7 +34,7 @@ namespace EPGP.API.Services
             };
         }
 
-        public AllRaiderPointsResponse? GetAllPoints(DateTime? cutOffDate, DateTime? toDate = null, TierToken? tierToken = null)
+        public AllRaiderPointsResponse? GetAllPoints(DateTime? cutOffDate, DateTime? toDate = null, TierToken? tierToken = null, ArmourType? armourType = null)
         {
             if (!cutOffDate.HasValue && toDate.HasValue) throw new ArgumentException("No Cutoff/From date");
 
@@ -49,6 +49,12 @@ namespace EPGP.API.Services
             if (tierToken.HasValue)
             {
                 var classes = RetrieveClasses(tierToken.Value);
+                raiders = raiders.Where(r => classes.Contains(r.Class));
+            }
+
+            if (armourType.HasValue)
+            {
+                var classes = RetrieveClasses(armourType.Value);
                 raiders = raiders.Where(r => classes.Contains(r.Class));
             }
 
@@ -172,6 +178,23 @@ namespace EPGP.API.Services
                     return new Class[] { Class.Druid, Class.Hunter, Class.Mage };
                 case TierToken.Venerated:
                     return new Class[] { Class.Paladin, Class.Priest, Class.Shaman };
+                default:
+                    return Array.Empty<Class>();
+            }
+        }
+
+        private static Class[] RetrieveClasses(ArmourType armourType)
+        {
+            switch (armourType)
+            {
+                case ArmourType.Cloth:
+                    return new Class[] { Class.Mage, Class.Priest, Class.Warlock };
+                case ArmourType.Leather:
+                    return new Class[] { Class.Monk, Class.Rogue, Class.Druid, Class.DemonHunter };
+                case ArmourType.Mail:
+                    return new Class[] { Class.Evoker, Class.Hunter, Class.Shaman };
+                case ArmourType.Plate:
+                    return new Class[] { Class.Paladin, Class.DeathKnight, Class.Warrior };
                 default:
                     return Array.Empty<Class>();
             }
