@@ -1,4 +1,5 @@
-﻿using EPGP.API.Models;
+﻿using EPGP.API.Filters;
+using EPGP.API.Models;
 using EPGP.API.Requests;
 using EPGP.API.Responses;
 using EPGP.API.Services;
@@ -31,6 +32,7 @@ namespace EPGP.API.Controllers
 
         // POST api/<PointsController>
         [HttpPost("/raider/{raiderId}")]
+        [ApiKey]
         public IActionResult Post(int raiderId, [FromBody] UpdatePointsRequest request)
         {
             if (!request.EffortPoints.HasValue && !request.GearPoints.HasValue)

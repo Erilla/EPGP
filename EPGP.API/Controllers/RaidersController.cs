@@ -1,4 +1,5 @@
-﻿using EPGP.API.Models;
+﻿using EPGP.API.Filters;
+using EPGP.API.Models;
 using EPGP.API.Requests;
 using EPGP.API.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ namespace EPGP.API.Controllers
         }
 
         [HttpPost]
+        [ApiKey]
         public void Post([FromBody] CreateRaiderRequest request)
         {
             _raiderService.CreateRaider(new Raider

@@ -1,4 +1,5 @@
-﻿using EPGP.API.Responses;
+﻿using EPGP.API.Filters;
+using EPGP.API.Responses;
 using EPGP.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -7,6 +8,7 @@ namespace EPGP.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiKey]
     public class UploadsController : ControllerBase
     {
         private readonly IUploadsService _uploadService;

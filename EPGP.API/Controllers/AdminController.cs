@@ -1,8 +1,10 @@
-﻿using EPGP.API.Services;
+﻿using EPGP.API.Filters;
+using EPGP.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPGP.API.Controllers
 {
+    [ApiKey]
     public class AdminController : Controller
     {
 

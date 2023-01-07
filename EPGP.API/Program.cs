@@ -33,6 +33,7 @@ builder.Services.AddCors(options =>
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1",
@@ -40,9 +41,35 @@ builder.Services.AddSwaggerGen(c =>
             {
                 Title = "API",
                 Version = "v1",
-                Description = "A REST API",
-                TermsOfService = new Uri("https://lmgtfy.com/?q=i+like+pie")
+                Description = "A REST API"
             });
+    var apiKeyHeader = "X-API-KEY";
+
+    c.AddSecurityDefinition(apiKeyHeader, new OpenApiSecurityScheme
+    {
+        Description = "Api key needed to access the endpoints. X-Api-Key: X-API-KEY",
+        In = ParameterLocation.Header,
+        Name = apiKeyHeader,
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Name = apiKeyHeader,
+                Type = SecuritySchemeType.ApiKey,
+                In = ParameterLocation.Header,
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = apiKeyHeader
+                },
+             },
+             new string[] {}
+         }
+    });
 });
 builder.Services
     .AddTransient<IAdminService, AdminService>()
@@ -78,22 +105,29 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.UseSwagger(c =>
+if (app.Environment.IsDevelopment())
 {
-    c.PreSerializeFilters.Add((swaggerDoc, httpRequest) =>
+    app.UseSwagger(c =>
     {
-        if (!httpRequest.Headers.ContainsKey("X-Forwarded-Host")) return;
-        var basePath = "proxy";
-        var serverUrl = $"{httpRequest.Scheme}://{httpRequest.Headers["X-Forwarded-Host"]}/{basePath}";
-        swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = serverUrl } };
+        c.PreSerializeFilters.Add((swaggerDoc, httpRequest) =>
+        {
+            if (!httpRequest.Headers.ContainsKey("X-Forwarded-Host")) return;
+            var basePath = "proxy";
+            var serverUrl = $"{httpRequest.Scheme}://{httpRequest.Headers["X-Forwarded-Host"]}/{basePath}";
+            swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = serverUrl } };
+        });
     });
-});
-app.UseSwaggerUI(c =>
-{
-    c.RoutePrefix = "";
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
-    c.OAuthClientId(configuration["Authentication:ClientId"]);
-});
+
+
+
+    app.UseSwaggerUI(c =>
+    {
+        c.RoutePrefix = "";
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
+
+    });
+}
+
 
 
 app.UseCors(MyAllowSpecificOrigins);
