@@ -153,5 +153,23 @@ namespace EPGP.Data.Repositories
 
             return (result, totalCount, raider.RaiderId);
         }
+
+        public (IEnumerable<DateOnly>, DateOnly, IEnumerable<LootHistoryMatch>) GetPagedLootHistoryByDate(int page)
+        {
+            if (page < 0) throw new ArgumentException("Page out of range");
+
+            var raidDates = _epgpContext.LootHistoryMatch
+                .Select(lhm => DateOnly.FromDateTime(lhm.Date))
+                .Distinct()
+                .OrderByDescending(i => i)
+                .ToList();
+
+            if (raidDates.Count < page) throw new ArgumentException("Page out of range");
+
+            var raidDate = raidDates[page];
+            var loot = GetLootHistoryMatchByDate(raidDate);
+
+            return (raidDates, raidDate, loot);
+        }
     }
 }

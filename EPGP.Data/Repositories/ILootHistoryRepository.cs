@@ -11,6 +11,8 @@ namespace EPGP.Data.Repositories
 
         (IEnumerable<LootHistoryMatch>, int, int) GetPagedLootHistoryForRaider(Region region, string realm, string characterName, int pageSize);
 
+        (IEnumerable<DateOnly>, DateOnly, IEnumerable<LootHistoryMatch>) GetPagedLootHistoryByDate(int page);
+
         IEnumerable<LootHistoryMatch> GetLootHistoryMatchByDate(DateOnly date);
 
         int AddLootHistoryMatch(LootHistoryMatch lootHistoryMatch);

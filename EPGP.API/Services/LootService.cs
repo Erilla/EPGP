@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EPGP.API.Models;
+using EPGP.API.Responses;
 using EPGP.Data.DbContexts;
 using EPGP.Data.Enums;
 using EPGP.Data.Repositories;
@@ -53,6 +54,29 @@ namespace EPGP.API.Services
                     ItemString = _mapper.Map<Models.ItemString>(lhr.LootHistoryGearPoints.ItemString),
                     GearPoints = lhr.LootHistoryGearPoints.GearPoints
                 })
+            };
+        }
+
+        public LootHistoryByDateResponse GetLootHistoryByDate(int page)
+        {
+            var (raidDates, raidDate, loot) = _lootHistoryRepository.GetPagedLootHistoryByDate(page);
+
+            return new LootHistoryByDateResponse
+            {
+                RaidDates = raidDates,
+                LootHistory = new LootHistoryByDate
+                {
+                    RaidDate = raidDate,
+                    Loot = loot.Select(l => new LootByDate
+                    {
+                        ItemString = _mapper.Map<Models.ItemString>(l.LootHistoryGearPoints.ItemString),
+                        CharacterName = l.Raider.CharacterName,
+                        CharacterClass = l.Raider.Class,
+                        Realm = l.Raider.Realm,
+                        Region = l.Raider.Region,
+                        GearPoints = l.LootHistoryGearPoints.GearPoints
+                    })
+                }
             };
         }
     }
