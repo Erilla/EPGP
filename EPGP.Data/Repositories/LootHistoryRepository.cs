@@ -98,9 +98,29 @@ namespace EPGP.Data.Repositories
             return _epgpContext.LootHistoryMatch
                 .Where(lhm => DateOnly.FromDateTime(lhm.Date) == date)
                 .Include(lhm => lhm.Raider)
-                .Include(lhm => lhm.LootHistoryGearPoints)
+                .Include(lh => lh.LootHistoryGearPoints)
                     .ThenInclude(x => x.ItemString)
-                .Include(lhm => lhm.LootHistoryDetailed)
+                    .ThenInclude(x => x.BonusIds)
+                .Include(lh => lh.LootHistoryGearPoints.ItemString)
+                    .ThenInclude(x => x.Modifiers)
+                .Include(lh => lh.LootHistoryGearPoints.ItemString)
+                    .ThenInclude(x => x.Relic1BonusIds)
+                .Include(lh => lh.LootHistoryGearPoints.ItemString)
+                    .ThenInclude(x => x.Relic2BonusIds)
+                .Include(lh => lh.LootHistoryGearPoints.ItemString)
+                    .ThenInclude(x => x.Relic3BonusIds)
+
+                .Include(lh => lh.LootHistoryDetailed)
+                    .ThenInclude(x => x.ItemString)
+                    .ThenInclude(x => x.BonusIds)
+                .Include(lh => lh.LootHistoryDetailed.ItemString)
+                    .ThenInclude(x => x.Modifiers)
+                .Include(lh => lh.LootHistoryDetailed.ItemString)
+                    .ThenInclude(x => x.Relic1BonusIds)
+                .Include(lh => lh.LootHistoryDetailed.ItemString)
+                    .ThenInclude(x => x.Relic2BonusIds)
+                .Include(lh => lh.LootHistoryDetailed.ItemString)
+                    .ThenInclude(x => x.Relic3BonusIds)
                 .ToList();
         }
 
