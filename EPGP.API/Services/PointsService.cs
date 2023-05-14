@@ -80,18 +80,20 @@ namespace EPGP.API.Services
                         var preCutoffGearPoints = gearPoints.Where(p => p.Timestamp < cutOffDate.Value).FirstOrDefault();
                         decimal decayedGearPoints = currentGearPoints;
 
+                        var decayValue = 0.75m;
+
                         // Get Decayed values if it's Wednesday
                         if (preCutoffEffortPoints != null)
                         {
-                            decayedEffortPoints = cutOffDate.Value.DayOfWeek == DayOfWeek.Wednesday ?
-                                preCutoffEffortPoints.Points - decimal.Multiply(preCutoffEffortPoints.Points, 0.2m) :
+                            decayedEffortPoints = cutOffDate.Value.DayOfWeek == DayOfWeek.Wednesday && lastUploadedDate > cutOffDate ?
+                                preCutoffEffortPoints.Points - decimal.Multiply(preCutoffEffortPoints.Points, decayValue) :
                                 preCutoffEffortPoints.Points;
                         }
 
                         if (preCutoffGearPoints != null)
                         {
-                            decayedGearPoints = cutOffDate.Value.DayOfWeek == DayOfWeek.Wednesday ?
-                                preCutoffGearPoints.Points - decimal.Multiply(preCutoffGearPoints.Points, 0.2m) :
+                            decayedGearPoints = cutOffDate.Value.DayOfWeek == DayOfWeek.Wednesday && lastUploadedDate > cutOffDate ?
+                                preCutoffGearPoints.Points - decimal.Multiply(preCutoffGearPoints.Points, decayValue) :
                                 preCutoffGearPoints.Points;
                         }
 
