@@ -1,4 +1,6 @@
 ﻿using EPGP.Data.DbContexts;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace EPGP.Data.Repositories
 {
@@ -10,6 +12,23 @@ namespace EPGP.Data.Repositories
 
 
         public IEnumerable<UploadHistory> GetAllUploadHistory() => _epgpContext.UploadHistories;
+
+        public decimal GetLatestDecay()
+        {
+            var latest = _epgpContext.UploadHistories.OrderByDescending(up => up.Timestamp).FirstOrDefault();
+            if (latest == null) return 0;
+
+            JObject? latestJsonObject = JsonConvert.DeserializeObject(latest.UploadedContent) as JObject;
+
+            if (latestJsonObject.HasValues)
+            {
+                var decayPercent = latestJsonObject["decay_p"]?.Value<decimal>();
+
+                return decayPercent ?? 0;
+            }
+
+            return 0;
+        }
 
         public DateTime? GetLatestUploadDateTime()
         {
