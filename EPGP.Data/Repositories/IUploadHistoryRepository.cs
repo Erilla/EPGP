@@ -9,5 +9,7 @@ namespace EPGP.Data.Repositories
         void SaveUploadHistory(UploadHistory uploadHistory);
 
         IEnumerable<UploadHistory> GetAllUploadHistory();
+
+        decimal GetLatestDecay();
     }
 }

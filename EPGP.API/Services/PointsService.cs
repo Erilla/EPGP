@@ -80,7 +80,7 @@ namespace EPGP.API.Services
                         var preCutoffGearPoints = gearPoints.Where(p => p.Timestamp < cutOffDate.Value).FirstOrDefault();
                         decimal decayedGearPoints = currentGearPoints;
 
-                        var decayValue = 0.75m;
+                        var decayValue = _uploadHistoryRepository.GetLatestDecay() / 100;
 
                         // Get Decayed values if it's Wednesday
                         if (preCutoffEffortPoints != null)
